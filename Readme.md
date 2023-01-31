@@ -1,12 +1,12 @@
 # Личный проект «Что посмотреть»
 
 * Студент: [Евгений Архипкин](https://up.htmlacademy.ru/nodejs-api/3/user/1806037).
-* Наставник: `Неизвестно`.
+* Наставник: `Даниил Васильев`.
 
 ---
 
-_Не удаляйте и не изменяйте папки и файлы:_
-_`.editorconfig`, `.gitattributes`, `.gitignore`._
+*Не удаляйте и не изменяйте папки и файлы:*
+*`.editorconfig`, `.gitattributes`, `.gitignore`.*
 
 ---
 
@@ -34,8 +34,9 @@ _`.editorconfig`, `.gitattributes`, `.gitignore`._
 
 Клонировать репозиторий можно так:
 
-```
+```ini
 git clone SSH-адрес_вашего_форка
+
 ```
 
 Команда клонирует репозиторий на ваш компьютер и подготовит всё необходимое для старта работы.
@@ -43,7 +44,5 @@ git clone SSH-адрес_вашего_форка
 ### 4. Начинайте обучение!
 
 ---
-
-<a href="https://htmlacademy.ru/profession/fullstack"><img align="left" width="50" height="50" title="HTML Academy" src="https://up.htmlacademy.ru/static/img/intensive/nodejs/logo-for-github-2.png"></a>
 
 Репозиторий создан для обучения на профессиональном онлайн‑курсе «[Node.js. Профессиональная разработка REST API](https://htmlacademy.ru/profession/fullstack)» от [HTML Academy](https://htmlacademy.ru).
