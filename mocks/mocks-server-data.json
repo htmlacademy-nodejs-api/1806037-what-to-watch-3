@@ -1,0 +1,109 @@
+{
+	"api": {
+	  "title": [
+		"Время первых",
+		"Человек-паук",
+		"Джентельмен",
+		"Начало",
+		"День Д"
+	  ],
+	  "description": [
+		"Ахвлзпывальылвлхэвл",
+		"вавызалывзазыщвоазщоывазщоывоаывз",
+		"вввввввввввввввввввввввв",
+		"аааааааааааааааааааыыу",
+		"уаывавыаывасмапипрр"
+	  ],
+	  "postDate": [
+		"2023-02-01T21:47:42+0000",
+		"2020-08-01T21:47:42+0000",
+		"2015-09-16T21:47:42+0000",
+		"2015-09-16T21:47:42+0000",
+		"2010-03-26T21:47:42+0000"
+	  ],
+	  "genre": [
+		"documentary",
+		"scifi",
+		"crime",
+		"drama",
+		"family"
+	  ],
+	  "releaseYear": [
+		"2020",
+		"2019",
+		"2018",
+		"2017",
+		"2016"
+	  ],
+	  "rating": [
+		"9",
+		"8.7",
+		"10",
+		"10",
+		"8"
+	  ],
+	  "previewVideoLink": [
+		"previewVideoLink",
+		"previewVideoLinks",
+		"previewVideoLinks",
+		"previewVideoLinks",
+		"previewVideoLinks"
+	  ],
+	  "videoLink": [
+		"videoLink",
+		"videoLink",
+		"videoLink",
+		"videoLink",
+		"videoLink"
+	  ],
+	  "actors": [
+		"Пацаны с района",
+		"3 паучка",
+		"Еще одни пацаны с района",
+		"ДиКаприо",
+		"ВдВешник и другие"
+	  ],
+	  "director": [
+		"Джони Кардано",
+		"МакГрегор",
+		"Гай Ричи",
+		"Архитектор",
+		"Какой то русский"
+	  ],
+	  "duration": [
+		"90",
+		"180",
+		"170",
+		"210",
+		"190"
+	  ],
+	  "creatorUser": [
+		"userLink",
+		"userLink",
+		"userLink",
+		"userLink",
+		"userLink"
+	  ],
+	  "posterLink": [
+		"posterLink",
+		"posterLink",
+		"posterLink",
+		"posterLink",
+		"posterLink"
+	  ],
+	  "backgroundImageLink": [
+		"backgroundImageLink",
+		"backgroundImageLink",
+		"backgroundImageLink",
+		"backgroundImageLink",
+		"backgroundImageLink"
+	  ],
+	  "backgroundColor": [
+		"red",
+		"blue",
+		"green",
+		"yellow",
+		"orange"
+	  ]
+	}
+}
