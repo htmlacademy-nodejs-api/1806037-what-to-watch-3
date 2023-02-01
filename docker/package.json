@@ -1,0 +1,22 @@
+{
+  "name": "what-to-watch",
+  "version": "3.0.0",
+  "description": "Проект «Что посмотреть» от HTML Academy",
+  "keywords": [
+    "rest",
+    "api",
+    "node.js"
+  ],
+  "main": "main.js",
+  "scripts": {
+    "start": "json-server /app/mocks-server-data.json --host=0.0.0.0 --port 3123"
+  },
+  "devDependencies": {
+    "json-server": "0.17.1"
+  },
+  "type": "module",
+  "engines": {
+    "node": "18.12.1",
+    "npm": "8.19.2"
+  }
+}

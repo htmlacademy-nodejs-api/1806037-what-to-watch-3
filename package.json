@@ -14,14 +14,20 @@
     "lint": "eslint src/ --ext .ts",
     "compile": "tsc -p tsconfig.json",
     "clean": "rimraf dist",
-    "ts": "ts-node"
+    "ts": "ts-node",
+    "mock:server": "json-server ./mocks/mocks-server-data.json --port 3123",
+    "json-server": "json-server"
   },
   "devDependencies": {
+    "@types/chalk": "2.2.0",
+    "@types/got": "9.6.12",
+    "@types/json-server": "0.14.4",
     "@types/node": "18.11.13",
     "@typescript-eslint/eslint-plugin": "5.46.0",
     "@typescript-eslint/parser": "5.46.0",
     "eslint": "8.29.0",
     "eslint-config-htmlacademy": "8.0.0",
+    "json-server": "0.17.1",
     "rimraf": "3.0.2",
     "ts-node": "10.9.1",
     "typescript": "4.9.4"
@@ -32,7 +38,8 @@
     "npm": "8.19.2"
   },
   "dependencies": {
-    "@types/chalk": "^2.2.0",
-    "chalk": "^5.2.0"
+    "chalk": "^5.2.0",
+    "dayjs": "^1.11.7",
+    "got": "^12.5.3"
   }
 }

@@ -1,51 +1,39 @@
-import { readFileSync } from 'fs';
+import EventEmitter from 'events';
+import { createReadStream, ReadStream } from 'fs';
 import { FileReaderinterface } from '../interface/file-reader.interface.js';
-import { FilmInterface } from '../interface/film.interface.js';
-import { GenreType } from '../type/genre.type.js';
 
-export default class TSVFileReader implements FileReaderinterface {
-  private rawData = '';
+
+export default class TSVFileReader extends EventEmitter implements FileReaderinterface {
+  private stream: ReadStream;
 
   constructor (
     public filename: string,
-  ) { }
-
-  public read(): void {
-    this.rawData = readFileSync(this.filename, {
-      encoding: 'utf-8',
+  ) {
+    super();
+    this.stream = createReadStream(this.filename, {
+      highWaterMark: 16384,
+      encoding: 'utf8',
     });
   }
 
-  public toArray(): FilmInterface[] {
-    if (!this.rawData) {
-      return [];
+  public async read(): Promise<void> {
+    let lineRead = '';
+    let endLinePosition = -1;
+    let importedRowCount = 0;
+
+    for await (const chunk of this.stream) {
+      lineRead += chunk.toString();
+
+      while ((endLinePosition = lineRead.indexOf('\n')) >= 0) {
+        const completeRow = lineRead.slice(0, endLinePosition + 1);
+        lineRead = lineRead.slice(endLinePosition + 1);
+        importedRowCount++;
+
+        this.emit('line', completeRow);
+      }
+
+      this.emit('end', importedRowCount);
     }
-
-    return this.rawData
-      .split('\n')
-      .filter((row) => row.trim() !== '')
-      .map((row) => row.split('\t'))
-      .map((item) => {
-        const [title, description, postDate, genre, releaseYear, rating, previewVideoLink, videoLink, actors, director, duration, posterLink, backgroundImageLink, backgroundColor, creatorUser] = item;
-
-        return {
-          title,
-          description,
-          postDate: new Date(postDate),
-          genre: genre as GenreType,
-          releaseYear: +releaseYear,
-          rating: +rating,
-          previewVideoLink,
-          videoLink,
-          actors: actors.split(','),
-          director,
-          duration: +duration,
-          posterLink,backgroundImageLink,
-          backgroundColor,
-          creatorUser,
-        };
-      });
-
   }
 
 }

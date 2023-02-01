@@ -1,0 +1,6 @@
+FROM node:18-alpine3.16
+WORKDIR /app
+COPY ./mocks/mocks-server-data.json .
+COPY ./docker/package.json .
+RUN npm i
+CMD npm run start
