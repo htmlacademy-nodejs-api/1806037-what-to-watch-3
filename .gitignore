@@ -10,6 +10,8 @@
 coverage
 *.log
 
+*.env
+
 .mocks
 .mock-json-server-docker
 .docker

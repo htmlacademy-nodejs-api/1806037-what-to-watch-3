@@ -1,6 +1,6 @@
 import { createFilmData } from '../../assets/helper/create-mock-film.js';
 import { getErrorMessage } from '../../assets/helper/helpers.js';
-import TSVFileReader from '../../assets/helper/tsv-file-reader.js';
+import TSVFileReader from '../../common/file-reader/tsv-file-reader.js';
 import { CliCommandInterface } from './cli-command.interface.js';
 
 export default class ImportCliCommand implements CliCommandInterface {
