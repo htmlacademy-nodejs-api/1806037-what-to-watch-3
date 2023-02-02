@@ -1,7 +1,7 @@
 import got from 'got';
 
-import FilmMockDataGenerator from '../../assets/helper/film-generator.js';
-import TSVFileWriter from '../../assets/helper/tsv-file-writer.js';
+import FilmMockDataGenerator from '../../common/film-generator/film-generator.js';
+import TSVFileWriter from '../../common/file-writer/tsv-file-writer.js';
 import { MockDataType } from '../../assets/type/mock-data.type.js';
 import { CliCommandInterface } from './cli-command.interface.js';
 

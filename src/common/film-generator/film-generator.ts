@@ -1,6 +1,6 @@
-import { FilmMockDataGeneratorInterface } from '../interface/film-mock-data-generator.interface.js';
-import { MockDataType } from '../type/mock-data.type.js';
-import { getRandomItems, getRandomValue } from './helpers.js';
+import { FilmMockDataGeneratorInterface } from './film-mock-data-generator.interface.js';
+import { MockDataType } from '../../assets/type/mock-data.type.js';
+import { getRandomItems, getRandomValue } from '../../assets/helper/helpers.js';
 
 export default class FilmMockDataGenerator implements FilmMockDataGeneratorInterface {
   constructor (
