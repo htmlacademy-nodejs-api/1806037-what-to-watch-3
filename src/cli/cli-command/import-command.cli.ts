@@ -75,7 +75,6 @@ export default class ImportCliCommand implements CliCommandInterface {
       throw errors.toString();
     }
 
-    const result = await this.filmService.create(dto, creatorUserId);
-    this.logger.info(result.toObject());
+    await this.filmService.create(dto, creatorUserId);
   }
 }
