@@ -21,12 +21,11 @@ export default class FilmService implements FilmServiceInterface {
     const { genres } = dto;
 
     const existGenres = await this.findGenresOrCreateGenres(genres);
-    console.log(existGenres);
 
     const film = new FilmEntity(dto, creatorUserId, existGenres);
 
     const newFilm = await this.filmModel.create(film);
-    this.logger.info(`New film: ${newFilm} is created.`);
+    this.logger.info(`New film: ${newFilm.title} is created.`);
 
     return newFilm;
   }
@@ -60,7 +59,6 @@ export default class FilmService implements FilmServiceInterface {
 
 
   async findGenresOrCreateGenres(genres: string[]): Promise<DocumentType<GenreEntity>[]> {
-    console.log(genres);
     const createdGenres = [];
 
     const existGenres = await this.genreModel.find({
