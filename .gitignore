@@ -12,9 +12,9 @@ coverage
 
 *.env
 
-/mongodb
-/upload
+/mongodb/
+/upload/
 
-/mocks
-/mock-json-server-docker
-/docker
+/mocks/
+/mock-json-server-docker/
+/docker/
