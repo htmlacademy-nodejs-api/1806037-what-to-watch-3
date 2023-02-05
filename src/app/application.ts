@@ -4,6 +4,7 @@ import { getMongoDBUri } from '../assets/helper/helpers.js';
 import { ConfigInterface } from '../common/config/config.interface.js';
 import { DatabaseInterface } from '../common/database/database.interface.js';
 import { LoggerInterface } from '../common/logger/logger.interface.js';
+import { FilmServiceInterface } from '../modules/film/film-service.interface.js';
 
 @injectable()
 export default class Application {
@@ -11,6 +12,7 @@ export default class Application {
     @inject(ComponentSymbolEnum.LoggerInterface) private readonly logger: LoggerInterface,
     @inject(ComponentSymbolEnum.ConfigInterface) private readonly config: ConfigInterface,
     @inject(ComponentSymbolEnum.DatabaseInterface) private readonly databaseClient: DatabaseInterface,
+    @inject(ComponentSymbolEnum.FilmServiceInterface) private readonly filmService: FilmServiceInterface,
   ) { }
 
   public async init() {
@@ -26,6 +28,7 @@ export default class Application {
     );
 
     await this.databaseClient.connect(mongoDbUri);
+    console.log(this.filmService);
   }
 
 }
