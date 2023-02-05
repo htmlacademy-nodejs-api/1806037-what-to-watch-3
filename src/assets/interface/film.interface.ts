@@ -1,10 +1,14 @@
+import { Ref } from '@typegoose/typegoose';
+import { Types } from 'mongoose';
+import { GenreEntity } from '../../common/database/entity/genre.entity.js';
+import { UserEntity } from '../../common/database/entity/user.entity.js';
 import { GenreType } from '../type/genre.type.js';
 
 export interface FilmInterface {
   title: string,
 	description: string,
 	postDate: Date,
-	genre: GenreType,
+	genres: string[] | GenreType[] | Types.ObjectId[] | Ref<GenreEntity>[],
 	releaseYear: number,
 	rating: number,
 	previewVideoLink: string,
@@ -16,5 +20,5 @@ export interface FilmInterface {
 	backgroundImageLink: string,
 	backgroundColor: string,
 
-	creatorUser: string,
+	creatorUser: Types.ObjectId | Ref<UserEntity> | string,
 }
