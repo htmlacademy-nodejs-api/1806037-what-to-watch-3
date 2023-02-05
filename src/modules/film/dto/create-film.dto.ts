@@ -16,9 +16,7 @@ export class CreateFilmDto {
   public description!: string;
 
   @Expose()
-  @IsArray({
-    each: true,
-  })
+  @IsArray()
   public genres!: GenreType[];
 
   @Expose()
@@ -34,9 +32,7 @@ export class CreateFilmDto {
   public videoLink!: string;
 
   @Expose()
-  @IsArray({
-    each: true,
-  })
+  @IsArray()
   public actors!: string[];
 
   @Expose()

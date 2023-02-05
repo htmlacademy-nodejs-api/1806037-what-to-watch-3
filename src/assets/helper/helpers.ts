@@ -1,3 +1,4 @@
+import { ClassConstructor, plainToInstance } from 'class-transformer';
 import crypto from 'crypto';
 
 export const generateRandomValue = (min: number, max: number) => Math.round((Math.random() * (max - min)) + min);
@@ -26,3 +27,5 @@ export const createSHA256 = (line: string, salt: string): string => {
 
   return shaHasher.update(line).digest('hex');
 };
+
+export const fillTransformObject = <T, V>(classConstructor: ClassConstructor<T>, plainObject: V | V[]) => plainToInstance(classConstructor, plainObject);

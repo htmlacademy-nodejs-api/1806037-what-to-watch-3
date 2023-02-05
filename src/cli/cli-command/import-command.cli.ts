@@ -1,5 +1,6 @@
+import { validate } from 'class-validator';
 import { createFilmData } from '../../assets/helper/create-mock-film.js';
-import { getErrorMessage, getMongoDBUri } from '../../assets/helper/helpers.js';
+import { fillTransformObject, getErrorMessage, getMongoDBUri } from '../../assets/helper/helpers.js';
 import { ConfigInterface } from '../../common/config/config.interface.js';
 import ConfigService from '../../common/config/config.service.js';
 import { DatabaseInterface } from '../../common/database/database.interface.js';
@@ -67,6 +68,13 @@ export default class ImportCliCommand implements CliCommandInterface {
   }
 
   private async saveFilmToMongoDB (dto: CreateFilmDto, creatorUserId: string) {
+    const dtoTransform = fillTransformObject(CreateFilmDto, dto);
+    const errors = await validate(dtoTransform);
+
+    if (errors.length > 0) {
+      throw errors.toString();
+    }
+
     const result = await this.filmService.create(dto, creatorUserId);
     this.logger.info(result.toObject());
   }
