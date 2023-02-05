@@ -12,6 +12,8 @@ export interface FilmServiceInterface {
   findById(id: string): Promise<DocumentType<FilmEntity> | null>;
   updateById(id: string, dto: UpdateFilmDto): Promise<DocumentType<FilmEntity> | null>;
   deleteById(id: string): void;
+  incCommentCount(id: string): Promise<void>;
+  decCommentCount(id: string): Promise<void>;
 
   createGenres(genres: string[]): Promise<Types.ObjectId[]>;
   findGenres(options?: unknown): Promise<DocumentType<GenreEntity>[]>;

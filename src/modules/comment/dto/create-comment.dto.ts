@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { IsInt, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { IsInt, IsMongoId, IsString, Max, MaxLength, Min, MinLength } from 'class-validator';
 
 export class CreateCommentDto {
   @Expose()
@@ -13,5 +13,9 @@ export class CreateCommentDto {
   @Min(1)
   @Max(10)
     rating!: number;
+
+  @Expose()
+  @IsMongoId()
+    filmId!: string;
 
 }

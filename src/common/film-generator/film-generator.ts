@@ -12,7 +12,7 @@ export default class FilmMockDataGenerator implements FilmMockDataGeneratorInter
     const title = getRandomValue<string>(this.mockData.title);
     const description = getRandomValue<string>(this.mockData.description);
     const postDate = getRandomValue<string>(this.mockData.postDate);
-    const genre = getRandomValue<string>(this.mockData.genre);
+    const genres = getRandomItems<string>(this.mockData.genre).join(',');
     const releaseYear = +getRandomValue<string>(this.mockData.releaseYear);
     const rating = +getRandomValue<string>(this.mockData.rating);
     const previewVideoLink = getRandomValue<string>(this.mockData.previewVideoLink);
@@ -28,7 +28,7 @@ export default class FilmMockDataGenerator implements FilmMockDataGeneratorInter
       title,
       description,
       postDate,
-      genre,
+      genres,
       releaseYear,
       rating,
       previewVideoLink,
