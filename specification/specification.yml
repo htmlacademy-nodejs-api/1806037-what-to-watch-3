@@ -7,12 +7,12 @@ info:
 servers:
   - url: https://api.server.test/v1
 tags:
+  - name: user
+    description: Действия с пользователем.
   - name: film
     description: Действия с фильмами.
   - name: comment
     description: Действия с комментариями.
-  - name: user
-    description: Действия с пользователем.
 paths:
   /films:
     get:

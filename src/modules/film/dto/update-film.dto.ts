@@ -1,6 +1,6 @@
 import { Expose } from 'class-transformer';
-import { IsString, MinLength, MaxLength, IsEnum, IsNumber, IsArray } from 'class-validator';
-import { GenreEnum } from '../../../assets/enum/genre.enum.js';
+import { IsString, MinLength, MaxLength, IsNumber, IsArray } from 'class-validator';
+import { Types } from 'mongoose';
 import { GenreType } from '../../../assets/type/genre.type.js';
 
 export class UpdateFilmDto {
@@ -8,53 +8,53 @@ export class UpdateFilmDto {
   @IsString()
   @MinLength(2)
   @MaxLength(100)
-  public title!: string;
+  public title?: string;
 
   @Expose()
   @IsString()
   @MinLength(20)
   @MaxLength(1024)
-  public description!: string;
+  public description?: string;
 
   @Expose()
-  @IsEnum(Object.create(GenreEnum))
-  public genre!: GenreType;
+  @IsArray()
+  public genres?: GenreType[] | Types.ObjectId[];
 
   @Expose()
   @IsNumber()
-  public releaseYear!: number;
+  public releaseYear?: number;
 
   @Expose()
   @IsString()
-  public previewVideoLink!: string;
+  public previewVideoLink?: string;
 
   @Expose()
   @IsString()
-  public videoLink!: string;
+  public videoLink?: string;
 
   @Expose()
   @IsArray({
     each: true,
   })
-  public actors!: string[];
+  public actors?: string[];
 
   @Expose()
   @IsString()
-  public director!: string;
+  public director?: string;
 
   @Expose()
   @IsNumber()
-  public duration!: number;
+  public duration?: number;
 
   @Expose()
   @IsString()
-  public posterLink!: string;
+  public posterLink?: string;
 
   @Expose()
   @IsString()
-  public backgroundImageLink!: string;
+  public backgroundImageLink?: string;
 
   @Expose()
   @IsString()
-  public backgroundColor!: string;
+  public backgroundColor?: string;
 }

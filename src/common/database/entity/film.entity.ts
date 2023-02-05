@@ -110,6 +110,13 @@ export class FilmEntity implements FilmInterface {
     backgroundColor!: string;
 
   @prop({
+    required: true,
+    default: 0,
+  })
+    commentCount!: number;
+
+
+  @prop({
     ref: UserEntity,
     required: true,
   })

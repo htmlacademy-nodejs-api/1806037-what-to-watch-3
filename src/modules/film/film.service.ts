@@ -1,5 +1,7 @@
 import { DocumentType, ModelType } from '@typegoose/typegoose/lib/types.js';
 import { inject, injectable } from 'inversify';
+import { Types } from 'mongoose';
+import { DEFAULT_FILM_LIMIT, ONE_VALUE, ZERO_VALUE } from '../../assets/constant/constants.js';
 import { ComponentSymbolEnum } from '../../assets/enum/component.symbol.enum.js';
 import { FilmEntity } from '../../common/database/entity/film.entity.js';
 import { GenreEntity } from '../../common/database/entity/genre.entity.js';
@@ -13,14 +15,14 @@ export default class FilmService implements FilmServiceInterface {
   constructor (
     @inject(ComponentSymbolEnum.LoggerInterface) private readonly logger: LoggerInterface,
     @inject(ComponentSymbolEnum.FilmModel) private readonly filmModel: ModelType<FilmEntity>,
-    @inject(ComponentSymbolEnum.FilmModel) private readonly genreModel: ModelType<GenreEntity>,
+    @inject(ComponentSymbolEnum.GenreModel) private readonly genreModel: ModelType<GenreEntity>,
   ) { }
 
 
   async create(dto: CreateFilmDto, creatorUserId: string): Promise<DocumentType<FilmEntity>> {
     const { genres } = dto;
 
-    const existGenres = await this.findGenresOrCreateGenres(genres);
+    const existGenres = await this.createGenres(genres);
 
     const film = new FilmEntity(dto, creatorUserId, existGenres);
 
@@ -30,35 +32,136 @@ export default class FilmService implements FilmServiceInterface {
     return newFilm;
   }
 
-  async find(options?: unknown): Promise<DocumentType<FilmEntity>[]> {
-    if (options) {
-      // Реализация
+  async find(options?: { page?: number, limit?: number }): Promise<DocumentType<FilmEntity>[]> {
+    const page = (!options?.page || options?.page < 1) ? ONE_VALUE : options?.page;
+    const limit = (!options?.limit || options?.limit < 1) ? DEFAULT_FILM_LIMIT : options?.limit;
+
+    const skip = (() => {
+      if (limit > DEFAULT_FILM_LIMIT) {
+        return DEFAULT_FILM_LIMIT * (page - ONE_VALUE);
+      }
+
+      return ZERO_VALUE;
+    })();
+    const count = (() => {
+      if (limit > DEFAULT_FILM_LIMIT && (DEFAULT_FILM_LIMIT * page) < limit) {
+        return DEFAULT_FILM_LIMIT * page;
+      }
+
+      return limit;
+    })();
+
+    return await this.filmModel
+      .find({}, {}, {
+        populate: ['creatorUser', 'genres'],
+        skip: skip,
+        limit: count - skip,
+        sort: { postDate: -1 },
+      })
+      .exec();
+
+  }
+
+  async findByGenre(genre: string, options?: { page?: number, limit?: number }): Promise<DocumentType<FilmEntity>[]> {
+    const page = (!options?.page || options?.page < 1) ? ONE_VALUE : options?.page;
+    const limit = (!options?.limit || options?.limit < 1) ? DEFAULT_FILM_LIMIT : options?.limit;
+
+    const skip = (() => {
+      if (limit > DEFAULT_FILM_LIMIT) {
+        return DEFAULT_FILM_LIMIT * (page - ONE_VALUE);
+      }
+
+      return ZERO_VALUE;
+    })();
+    const count = (() => {
+      if (limit > DEFAULT_FILM_LIMIT && (DEFAULT_FILM_LIMIT * page) < limit) {
+        return DEFAULT_FILM_LIMIT * page;
+      }
+
+      return limit;
+    })();
+
+    const existGenre = await this.findGenreByName(genre);
+
+    if (!existGenre) {
+      throw new Error(`This genre: ${genre}  does not exist.`);
     }
 
-    return await this.filmModel.find({});
+    return await this.filmModel
+      .find({
+        genres: existGenre._id,
+      }, {}, {
+        populate: ['creatorUser', 'genres'],
+        skip: skip,
+        limit: count - skip,
+        sort: { createdAt: -1 },
+      })
+      .exec();
   }
 
-  async findByGenre(genre: string): Promise<DocumentType<FilmEntity>[]> {
-    // ???
-    return await this.filmModel.find({
-      genres: genre,
-    });
-  }
-
-  async findById(id: string): Promise<DocumentType<FilmEntity> | null> {
-    return await this.filmModel.findById(id);
+  async findById(id: string | string[]): Promise<DocumentType<FilmEntity> | null> {
+    return await this.filmModel
+      .findById(id)
+      .populate(['creatorUser', 'genres'])
+      .exec();
   }
 
   async updateById(id: string, dto: UpdateFilmDto): Promise<DocumentType<FilmEntity> | null> {
-    return await this.filmModel.findByIdAndUpdate(id, dto, { new: true, });
+    const { genres } = dto;
+    const updateData = {
+      ...dto,
+    };
+
+    if (genres) {
+      updateData.genres = await this.createGenres(genres as string[]);
+    }
+
+    return await this.filmModel
+      .findByIdAndUpdate(
+        id,
+        updateData,
+        {
+          populate: ['creatorUser', 'genres'],
+          new: true,
+        }
+      )
+      .exec();
   }
 
   async deleteById(id: string): Promise<void> {
     await this.filmModel.findByIdAndDelete(id);
   }
 
+  async incCommentCount(id: string): Promise<void> {
+    const existFilm = await this.findById(id);
 
-  async findGenresOrCreateGenres(genres: string[]): Promise<DocumentType<GenreEntity>[]> {
+    if (!existFilm) {
+      throw new Error(`The film with id: ${id} does not exist.`);
+    }
+
+    await this.filmModel.findByIdAndUpdate(id, {
+      $inc: {
+        commentCount: 1,
+      },
+    });
+  }
+
+  async decCommentCount(id: string): Promise<void> {
+    const existFilm = await this.findById(id);
+
+    if (!existFilm) {
+      throw new Error(`The film with id: ${id} does not exist.`);
+    }
+
+    await this.filmModel.findByIdAndUpdate(id, {
+      $inc: {
+        commentCount: -1,
+      },
+    });
+  }
+
+
+  async createGenres(genres: string[]): Promise<Types.ObjectId[]> {
     const createdGenres = [];
 
     const existGenres = await this.genreModel.find({
@@ -74,23 +177,42 @@ export default class FilmService implements FilmServiceInterface {
 
       const result = await this.genreModel.create(new GenreEntity(genre.trim()));
       this.logger.info(`Create new genre: ${genre}.`);
-      createdGenres.push(result);
+      createdGenres.push(result._id);
     }
 
     return createdGenres;
   }
 
-  async findGenres(options?: unknown): Promise<DocumentType<GenreEntity>[]> {
-    if (options) {
-      // Реализация
-    }
-
-    return await this.genreModel.find({});
+  async findGenres(): Promise<DocumentType<GenreEntity>[]> {
+    return await this.genreModel.aggregate([
+      {
+        $lookup: {
+          from: 'Film',
+          let: { genreId: '$_id', },
+          pipeline: [
+            { $match: { $expr: { $in: ['$$genreId', '$genres'], }, } },
+            { $project: { _id: 1, createdAt: 1, }, },
+            { $sort: { createdAt: -1, }, }
+          ],
+          as: 'films',
+        }
+      },
+      {
+        $addFields: {
+          filmCount: { $size: '$films', },
+        },
+      },
+    ]).exec();
   }
 
   async findGenreById(id: string): Promise<DocumentType<GenreEntity> | null> {
     return await this.genreModel.findById(id);
   }
 
+  async findGenreByName(genre: string): Promise<DocumentType<GenreEntity> | null> {
+    return await this.genreModel.findOne({
+      genre: genre
+    });
+  }
 
 }

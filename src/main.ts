@@ -7,6 +7,7 @@ import Application from './app/application.js';
 import { applicationDIContainer } from './app/DI/application.container.js';
 import { userDIContainer } from './app/DI/user.container.js';
 import { filmDIContainer } from './app/DI/film.container.js';
+import { commentDIContainer } from './app/DI/comment.container.js';
 
 
 async function bootstrap() {
@@ -14,6 +15,7 @@ async function bootstrap() {
     applicationDIContainer,
     userDIContainer,
     filmDIContainer,
+    commentDIContainer,
   );
 
   const application = mainContainer.get<Application>(ComponentSymbolEnum.Application);

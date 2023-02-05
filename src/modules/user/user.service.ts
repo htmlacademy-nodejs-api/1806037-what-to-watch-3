@@ -6,6 +6,7 @@ import { ConfigInterface } from '../../common/config/config.interface.js';
 import { UserEntity } from '../../common/database/entity/user.entity.js';
 import { LoggerInterface } from '../../common/logger/logger.interface.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
+import { UpdateUserDto } from './dto/update-user.dto.js';
 import { UserServiceInterface } from './user-service.interface.js';
 
 @injectable()
@@ -15,6 +16,7 @@ export default class UserService implements UserServiceInterface {
     @inject(ComponentSymbolEnum.ConfigInterface) private readonly config: ConfigInterface,
     @inject(ComponentSymbolEnum.UserModel) private readonly userModel: ModelType<UserEntity>,
   ) { }
+
 
   async create(dto: CreateUserDto): Promise<DocumentType<UserEntity, BeAnObject>> {
     const { email, password } = dto;
@@ -36,6 +38,10 @@ export default class UserService implements UserServiceInterface {
     return await this.userModel.findOne({
       email: email,
     });
+  }
+
+  async updateById(_id: string, _dto: UpdateUserDto): Promise<DocumentType<UserEntity, BeAnObject> | null> {
+    throw new Error('Method not implemented.');
   }
 
 }

@@ -1,9 +1,10 @@
+import { Types } from 'mongoose';
 import { getModelForClass, modelOptions, prop, Ref } from '@typegoose/typegoose';
 import { Base, TimeStamps } from '@typegoose/typegoose/lib/defaultClasses.js';
-import { Types } from 'mongoose';
-import { CommentInterface } from '../../../assets/interface/comment.interface';
-import { CreateCommentDto } from '../../../modules/comment/dto/create-comment.dto';
-import { UserEntity } from './user.entity';
+import { CommentInterface } from '../../../assets/interface/comment.interface.js';
+import { CreateCommentDto } from '../../../modules/comment/dto/create-comment.dto.js';
+import { FilmEntity } from './film.entity.js';
+import { UserEntity } from './user.entity.js';
 
 
 export interface CommentEntity extends Base, TimeStamps { }
@@ -17,6 +18,7 @@ export interface CommentEntity extends Base, TimeStamps { }
 export class CommentEntity implements CommentInterface {
   @prop({
     required: true,
+    trim: true,
   })
     comment!: string;
 
@@ -26,17 +28,25 @@ export class CommentEntity implements CommentInterface {
     rating!: number;
 
   @prop({
-    ref: UserEntity,
     required: true,
+    ref: FilmEntity,
   })
-    creatorUser!: string | Ref<UserEntity, Types.ObjectId>;
+    filmId!: Ref<FilmEntity> | Types.ObjectId | string;
+
+  @prop({
+    required: true,
+    ref: UserEntity,
+  })
+    creatorUser!: Ref<UserEntity> | Types.ObjectId | string;
 
 
-  constructor (dto: CreateCommentDto, creatorUserId: Types.ObjectId) {
-    const { comment, rating } = dto;
+  constructor (dto: CreateCommentDto, creatorUserId: Types.ObjectId | string) {
+    const { comment, rating, filmId } = dto;
 
     this.comment = comment;
     this.rating = rating;
+    this.filmId = filmId;
+
     this.creatorUser = creatorUserId;
   }
 
