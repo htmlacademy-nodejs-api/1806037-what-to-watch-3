@@ -7,6 +7,8 @@ import { DatabaseInterface } from '../../common/database/database.interface.js';
 import DatabaseService from '../../common/database/database.service.js';
 import { LoggerInterface } from '../../common/logger/logger.interface.js';
 import LoggerService from '../../common/logger/logger.service.js';
+import { ExceptionFilterInterface } from '../../assets/interface/exception-filter.interface.js';
+import ExceptionFilter from '../../common/exception-filter/exception.filter.js';
 
 const applicationDIContainer = new Container();
 
@@ -14,5 +16,6 @@ applicationDIContainer.bind<Application>(ComponentSymbolEnum.Application).to(App
 applicationDIContainer.bind<LoggerInterface>(ComponentSymbolEnum.LoggerInterface).to(LoggerService).inSingletonScope();
 applicationDIContainer.bind<ConfigInterface>(ComponentSymbolEnum.ConfigInterface).to(ConfigService).inSingletonScope();
 applicationDIContainer.bind<DatabaseInterface>(ComponentSymbolEnum.DatabaseInterface).to(DatabaseService).inSingletonScope();
+applicationDIContainer.bind<ExceptionFilterInterface>(ComponentSymbolEnum.ExceptionFilterInterface).to(ExceptionFilter).inSingletonScope();
 
 export { applicationDIContainer };

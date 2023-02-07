@@ -19,8 +19,8 @@ export default class CommentService implements CommentServiceInterface {
   ) { }
 
 
-  async create(dto: CreateCommentDto, creatorUserId: Types.ObjectId | string): Promise<DocumentType<CommentEntity>> {
-    const newComment = new CommentEntity(dto, creatorUserId);
+  async create(dto: CreateCommentDto, creatorUserId: Types.ObjectId | string, filmId: Types.ObjectId | string): Promise<DocumentType<CommentEntity>> {
+    const newComment = new CommentEntity(dto, creatorUserId, filmId);
 
     const result = await this.commentModel.create(newComment);
     this.logger.info('New comment is created...');
@@ -28,23 +28,20 @@ export default class CommentService implements CommentServiceInterface {
     return result;
   }
 
-  async findByFilmId(filmId: string, options?: { page?: number, limit?: number }): Promise<DocumentType<CommentEntity>[]> {
-    const page = (!options?.page || options?.page < 1) ? ONE_VALUE : options?.page;
-    const limit = (!options?.limit || options?.limit < 1) ? DEFAULT_COMMENT_LIMIT : options?.limit;
-
+  async findByFilmId(filmId: string, options: { page: number, limit: number }): Promise<DocumentType<CommentEntity>[]> {
     const skip = (() => {
-      if (limit > DEFAULT_COMMENT_LIMIT) {
-        return DEFAULT_COMMENT_LIMIT * (page - ONE_VALUE);
+      if (options.limit > DEFAULT_COMMENT_LIMIT) {
+        return DEFAULT_COMMENT_LIMIT * (options.page - ONE_VALUE);
       }
 
       return ZERO_VALUE;
     })();
     const count = (() => {
-      if (limit > DEFAULT_COMMENT_LIMIT && (DEFAULT_COMMENT_LIMIT * page) < limit) {
-        return DEFAULT_COMMENT_LIMIT * page;
+      if (options.limit > DEFAULT_COMMENT_LIMIT && (DEFAULT_COMMENT_LIMIT * options.page) < options.limit) {
+        return DEFAULT_COMMENT_LIMIT * options.page;
       }
 
-      return limit;
+      return options.limit;
     })();
 
     return await this.commentModel.find(
@@ -53,7 +50,7 @@ export default class CommentService implements CommentServiceInterface {
       }, {}, {
         populate: ['creatorUser'],
         skip: skip,
-        limit: count - skip,
+        limit: count,
         sort: { createdAt: -1 },
       },
     );
