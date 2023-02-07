@@ -40,8 +40,8 @@ export class CommentEntity implements CommentInterface {
     creatorUser!: Ref<UserEntity> | Types.ObjectId | string;
 
 
-  constructor (dto: CreateCommentDto, creatorUserId: Types.ObjectId | string) {
-    const { comment, rating, filmId } = dto;
+  constructor (dto: CreateCommentDto, creatorUserId: Types.ObjectId | string, filmId: Types.ObjectId | string) {
+    const { comment, rating } = dto;
 
     this.comment = comment;
     this.rating = rating;

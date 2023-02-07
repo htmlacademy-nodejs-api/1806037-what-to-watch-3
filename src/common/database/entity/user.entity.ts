@@ -1,5 +1,6 @@
 import typegoose, { getModelForClass } from '@typegoose/typegoose';
 import { Base, TimeStamps } from '@typegoose/typegoose/lib/defaultClasses.js';
+import { Types } from 'mongoose';
 import { createSHA256 } from '../../../assets/helper/helpers.js';
 import { UserInterface } from '../../../assets/interface/user.interface.js';
 import { CreateUserDto } from '../../../modules/user/dto/create-user.dto.js';
@@ -38,6 +39,11 @@ export class UserEntity implements UserInterface {
   })
   public avatar?: string;
 
+  @prop({
+    required: true,
+    default: [],
+  })
+    favoriteFilms!: Types.ObjectId[];
 
   constructor (dto: CreateUserDto) {
     const { email, username } = dto;
@@ -48,8 +54,10 @@ export class UserEntity implements UserInterface {
     return this;
   }
 
-  public setPasswordHash(password: string, salt: string): void {
+  public setPasswordHash(password: string, salt: string): this {
     this.passwordHash = createSHA256(password, salt);
+
+    return this;
   }
 
   public getPasswordHash(): string {

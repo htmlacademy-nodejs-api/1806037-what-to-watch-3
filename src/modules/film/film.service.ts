@@ -9,6 +9,7 @@ import { LoggerInterface } from '../../common/logger/logger.interface.js';
 import { CreateFilmDto } from './dto/create-film.dto.js';
 import { UpdateFilmDto } from './dto/update-film.dto.js';
 import { FilmServiceInterface } from './film-service.interface.js';
+import { FilmQuery } from './query/film.query.js';
 
 @injectable()
 export default class FilmService implements FilmServiceInterface {
@@ -32,68 +33,64 @@ export default class FilmService implements FilmServiceInterface {
     return newFilm;
   }
 
-  async find(options?: { page?: number, limit?: number }): Promise<DocumentType<FilmEntity>[]> {
-    const page = (!options?.page || options?.page < 1) ? ONE_VALUE : options?.page;
-    const limit = (!options?.limit || options?.limit < 1) ? DEFAULT_FILM_LIMIT : options?.limit;
-
+  async find(options: FilmQuery): Promise<DocumentType<FilmEntity>[]> {
     const skip = (() => {
-      if (limit > DEFAULT_FILM_LIMIT) {
-        return DEFAULT_FILM_LIMIT * (page - ONE_VALUE);
+      if (options.limit > DEFAULT_FILM_LIMIT) {
+        return DEFAULT_FILM_LIMIT * (options.page - ONE_VALUE);
       }
 
       return ZERO_VALUE;
     })();
-    const count = (() => {
-      if (limit > DEFAULT_FILM_LIMIT && (DEFAULT_FILM_LIMIT * page) < limit) {
-        return DEFAULT_FILM_LIMIT * page;
+    const limit = (() => {
+      if (options.limit > DEFAULT_FILM_LIMIT && (DEFAULT_FILM_LIMIT * options.page) < options.limit) {
+        return DEFAULT_FILM_LIMIT * options.page;
       }
 
-      return limit;
+      return options.limit;
     })();
 
     return await this.filmModel
-      .find({}, {}, {
+      .find({}, null, {
         populate: ['creatorUser', 'genres'],
         skip: skip,
-        limit: count - skip,
+        limit: limit,
         sort: { postDate: -1 },
       })
       .exec();
 
   }
 
-  async findByGenre(genre: string, options?: { page?: number, limit?: number }): Promise<DocumentType<FilmEntity>[]> {
-    const page = (!options?.page || options?.page < 1) ? ONE_VALUE : options?.page;
-    const limit = (!options?.limit || options?.limit < 1) ? DEFAULT_FILM_LIMIT : options?.limit;
-
+  async findByGenre(genres: string[], options: FilmQuery): Promise<DocumentType<FilmEntity>[]> {
     const skip = (() => {
-      if (limit > DEFAULT_FILM_LIMIT) {
-        return DEFAULT_FILM_LIMIT * (page - ONE_VALUE);
+      if (options.limit > DEFAULT_FILM_LIMIT) {
+        return DEFAULT_FILM_LIMIT * (options.page - ONE_VALUE);
       }
 
       return ZERO_VALUE;
     })();
-    const count = (() => {
-      if (limit > DEFAULT_FILM_LIMIT && (DEFAULT_FILM_LIMIT * page) < limit) {
-        return DEFAULT_FILM_LIMIT * page;
+    const limit = (() => {
+      if (options.limit > DEFAULT_FILM_LIMIT && (DEFAULT_FILM_LIMIT * options.page) < options.limit) {
+        return DEFAULT_FILM_LIMIT * options.page;
       }
 
-      return limit;
+      return options.limit;
     })();
 
-    const existGenre = await this.findGenreByName(genre);
+    const existGenre = await this.findGenresByNames(genres);
 
-    if (!existGenre) {
-      throw new Error(`This genre: ${genre}  does not exist.`);
+    if (existGenre?.length < 1) {
+      throw new Error(`This genre(s): "${genres.toString()}" does not exist.`);
     }
 
     return await this.filmModel
       .find({
-        genres: existGenre._id,
-      }, {}, {
+        genres: {
+          $in: [...existGenre],
+        },
+      }, null, {
         populate: ['creatorUser', 'genres'],
         skip: skip,
-        limit: count - skip,
+        limit: limit,
         sort: { createdAt: -1 },
       })
       .exec();
@@ -103,6 +100,36 @@ export default class FilmService implements FilmServiceInterface {
     return await this.filmModel
       .findById(id)
       .populate(['creatorUser', 'genres'])
+      .exec();
+  }
+
+  async findByIds(ids: Types.ObjectId[], options: FilmQuery): Promise<DocumentType<FilmEntity>[]> {
+    const skip = (() => {
+      if (options.limit > DEFAULT_FILM_LIMIT) {
+        return DEFAULT_FILM_LIMIT * (options.page - ONE_VALUE);
+      }
+
+      return ZERO_VALUE;
+    })();
+    const limit = (() => {
+      if (options.limit > DEFAULT_FILM_LIMIT && (DEFAULT_FILM_LIMIT * options.page) < options.limit) {
+        return DEFAULT_FILM_LIMIT * options.page;
+      }
+
+      return options.limit;
+    })();
+
+    return await this.filmModel
+      .find({
+        _id: {
+          $in: [...ids],
+        },
+      }, null, {
+        populate: ['creatorUser', 'genres'],
+        skip: skip,
+        limit: limit,
+        sort: { postDate: -1 },
+      })
       .exec();
   }
 
@@ -129,7 +156,7 @@ export default class FilmService implements FilmServiceInterface {
   }
 
   async deleteById(id: string): Promise<void> {
-    await this.filmModel.findByIdAndDelete(id);
+    await this.filmModel.findByIdAndDelete(id).exec();
   }
 
   async incCommentCount(id: string): Promise<void> {
@@ -143,7 +170,7 @@ export default class FilmService implements FilmServiceInterface {
       $inc: {
         commentCount: 1,
       },
-    });
+    }).exec();
   }
 
   async decCommentCount(id: string): Promise<void> {
@@ -157,7 +184,7 @@ export default class FilmService implements FilmServiceInterface {
       $inc: {
         commentCount: -1,
       },
-    });
+    }).exec();
   }
 
 
@@ -212,6 +239,12 @@ export default class FilmService implements FilmServiceInterface {
   async findGenreByName(genre: string): Promise<DocumentType<GenreEntity> | null> {
     return await this.genreModel.findOne({
       genre: genre
+    });
+  }
+
+  async findGenresByNames(genres: string[]): Promise<DocumentType<GenreEntity>[]> {
+    return await this.genreModel.find({
+      genre: genres,
     });
   }
 

@@ -1,17 +1,43 @@
 import { inject, injectable } from 'inversify';
+import express, { Express } from 'express';
 import { ComponentSymbolEnum } from '../assets/enum/component.symbol.enum.js';
 import { getMongoDBUri } from '../assets/helper/helpers.js';
 import { ConfigInterface } from '../common/config/config.interface.js';
 import { DatabaseInterface } from '../common/database/database.interface.js';
 import { LoggerInterface } from '../common/logger/logger.interface.js';
+import { Controller } from '../common/controller/controller.abstract.js';
+import { ExceptionFilterInterface } from '../assets/interface/exception-filter.interface.js';
 
 @injectable()
 export default class Application {
+  private readonly expressApp: Express;
+
   constructor (
     @inject(ComponentSymbolEnum.LoggerInterface) private readonly logger: LoggerInterface,
     @inject(ComponentSymbolEnum.ConfigInterface) private readonly config: ConfigInterface,
+    @inject(ComponentSymbolEnum.ExceptionFilterInterface) private readonly exceptionFilter: ExceptionFilterInterface,
     @inject(ComponentSymbolEnum.DatabaseInterface) private readonly databaseClient: DatabaseInterface,
-  ) { }
+
+    @inject(ComponentSymbolEnum.UserController) private readonly userController: Controller,
+    @inject(ComponentSymbolEnum.FilmController) private readonly filmController: Controller,
+    @inject(ComponentSymbolEnum.CommentController) private readonly commentController: Controller,
+  ) {
+    this.expressApp = express();
+  }
+
+  public registerRoutes() {
+    this.expressApp.use('/auth', this.userController.router);
+    this.expressApp.use('/films', this.filmController.router);
+    this.expressApp.use('/comments', this.commentController.router);
+  }
+
+  public registerMiddlewares() {
+    this.expressApp.use(express.json());
+  }
+
+  public registerExceptionFilters() {
+    this.expressApp.use(this.exceptionFilter.catch.bind(this.exceptionFilter));
+  }
 
   public async init() {
     this.logger.info('Application initialization...');
@@ -26,6 +52,13 @@ export default class Application {
     );
 
     await this.databaseClient.connect(mongoDbUri);
+
+    this.registerMiddlewares();
+    this.registerRoutes();
+    this.registerExceptionFilters();
+
+    this.expressApp.listen(this.config.get('PORT'));
+    this.logger.info(`Server started on http://localhost:${this.config.get('PORT')}`);
   }
 
 }

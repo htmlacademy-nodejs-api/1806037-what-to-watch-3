@@ -1,7 +1,7 @@
 import { Expose } from 'class-transformer';
 import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
 
-export class CreateUserDto {
+export class LoginUserDto {
   @Expose()
   @IsEmail()
     email!: string;
@@ -12,11 +12,4 @@ export class CreateUserDto {
   @MaxLength(12)
     password!: string;
 
-  @Expose()
-  @IsString()
-  @MinLength(1)
-  @MaxLength(15)
-    username!: string;
-
-  avatar?: string;
 }

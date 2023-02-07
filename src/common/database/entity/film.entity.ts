@@ -41,7 +41,6 @@ export class FilmEntity implements FilmInterface {
     required: true,
     default: [],
     _id: false,
-
   })
     genres!: Ref<GenreEntity>[];
 

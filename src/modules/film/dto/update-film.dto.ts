@@ -1,9 +1,13 @@
-import { Expose } from 'class-transformer';
-import { IsString, MinLength, MaxLength, IsNumber, IsArray } from 'class-validator';
+import { Exclude, Expose } from 'class-transformer';
+import { IsString, MinLength, MaxLength, IsNumber, IsArray, IsMongoId } from 'class-validator';
 import { Types } from 'mongoose';
 import { GenreType } from '../../../assets/type/genre.type.js';
 
 export class UpdateFilmDto {
+  @Exclude()
+  @IsMongoId()
+  public filmId!: string;
+
   @Expose()
   @IsString()
   @MinLength(2)
