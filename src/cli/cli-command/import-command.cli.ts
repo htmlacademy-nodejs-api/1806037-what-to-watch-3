@@ -1,6 +1,5 @@
 import { validate } from 'class-validator';
-import { createFilmData } from '../../assets/helper/create-mock-film.js';
-import { fillTransformObject, getErrorMessage, getMongoDBUri } from '../../assets/helper/helpers.js';
+import { createFilmData, fillTransformObject, getErrorMessage, getMongoDBUri } from '../../assets/helper/helpers.js';
 import { ConfigInterface } from '../../common/config/config.interface.js';
 import ConfigService from '../../common/config/config.service.js';
 import { DatabaseInterface } from '../../common/database/database.interface.js';

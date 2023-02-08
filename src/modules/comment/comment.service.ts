@@ -8,7 +8,7 @@ import { CommentEntity } from '../../common/database/entity/comment.entity.js';
 import { LoggerInterface } from '../../common/logger/logger.interface.js';
 import { CommentServiceInterface } from './comment-service.interface.js';
 import { CreateCommentDto } from './dto/create-comment.dto.js';
-import { DEFAULT_COMMENT_LIMIT, ONE_VALUE, ZERO_VALUE } from '../../assets/constant/constants.js';
+import { ConstantValue } from '../../assets/constant/constants.js';
 
 
 @injectable()
@@ -30,15 +30,15 @@ export default class CommentService implements CommentServiceInterface {
 
   async findByFilmId(filmId: string, options: { page: number, limit: number }): Promise<DocumentType<CommentEntity>[]> {
     const skip = (() => {
-      if (options.limit > DEFAULT_COMMENT_LIMIT) {
-        return DEFAULT_COMMENT_LIMIT * (options.page - ONE_VALUE);
+      if (options.limit > ConstantValue.DEFAULT_COMMENT_LIMIT) {
+        return ConstantValue.DEFAULT_COMMENT_LIMIT * (options.page - ConstantValue.ONE_VALUE);
       }
 
-      return ZERO_VALUE;
+      return ConstantValue.ZERO_VALUE;
     })();
     const count = (() => {
-      if (options.limit > DEFAULT_COMMENT_LIMIT && (DEFAULT_COMMENT_LIMIT * options.page) < options.limit) {
-        return DEFAULT_COMMENT_LIMIT * options.page;
+      if (options.limit > ConstantValue.DEFAULT_COMMENT_LIMIT && (ConstantValue.DEFAULT_COMMENT_LIMIT * options.page) < options.limit) {
+        return ConstantValue.DEFAULT_COMMENT_LIMIT * options.page;
       }
 
       return options.limit;

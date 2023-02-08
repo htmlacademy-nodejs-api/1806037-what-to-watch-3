@@ -1,6 +1,6 @@
 import { Expose, Transform } from 'class-transformer';
 import { StatusCodes } from 'http-status-codes';
-import { DEFAULT_FILM_LIMIT, ONE_VALUE, ZERO_VALUE } from '../../../assets/constant/constants.js';
+import { ConstantValue } from '../../../assets/constant/constants.js';
 import HttpError from '../../../common/exception-filter/http-error.js';
 
 export class FilmQuery {
@@ -15,7 +15,7 @@ export class FilmQuery {
       );
     }
 
-    return (transformValue < ZERO_VALUE || !obj.limit) ? DEFAULT_FILM_LIMIT : transformValue;
+    return (transformValue < ConstantValue.ZERO_VALUE || !obj.limit) ? ConstantValue.DEFAULT_FILM_LIMIT : transformValue;
   })
     limit!: number;
 
@@ -30,7 +30,7 @@ export class FilmQuery {
       );
     }
 
-    return (transformValue < ONE_VALUE || !obj.page) ? ONE_VALUE : transformValue;
+    return (transformValue < ConstantValue.ONE_VALUE || !obj.page) ? ConstantValue.ONE_VALUE : transformValue;
   })
     page!: number;
 

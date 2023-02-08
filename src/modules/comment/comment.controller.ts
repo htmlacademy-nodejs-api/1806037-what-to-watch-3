@@ -15,13 +15,17 @@ import CommentService from './comment.service.js';
 import { CreateCommentDto } from './dto/create-comment.dto.js';
 import { CommentQuery } from './query/comment.query.js';
 import { CommentRdo } from './rdo/comment.rdo.js';
+import { ConfigInterface } from '../../common/config/config.interface.js';
+import UserService from '../user/user.service.js';
+import { AuthenticateMiddleware } from '../../common/middleware/authenticate.middleware.js';
+import { JwtPayloadDto } from '../user/dto/jwt-payload.dto.js';
 
 @injectable()
 export default class CommentController extends Controller {
-  private readonly creatorUserId = '63df78963bfe990c85df436d';
-
   constructor (
     @inject(ComponentSymbolEnum.LoggerInterface) readonly logger: LoggerInterface,
+    @inject(ComponentSymbolEnum.ConfigInterface) readonly config: ConfigInterface,
+    @inject(ComponentSymbolEnum.UserServiceInterface) readonly userService: UserService,
     @inject(ComponentSymbolEnum.FilmServiceInterface) private readonly filmService: FilmService,
     @inject(ComponentSymbolEnum.CommentServiceinterface) private readonly commentService: CommentService,
   ) {
@@ -30,7 +34,7 @@ export default class CommentController extends Controller {
     this.logger.info(`Register routes for ${CommentController.name}`);
 
     this.addRoute({ path: '/:filmId', method: HttpMethodEnum.Get, handler: this.getCommentsByFilmId, middlewares: [new MongoIDValidateMiddleware('filmId'), new RequestQueryValidateMiddleware(CommentQuery)], });
-    this.addRoute({ path: '/:filmId', method: HttpMethodEnum.Post, handler: this.create, middlewares: [new MongoIDValidateMiddleware('filmId'), new DtoValidateMiddleware(CreateCommentDto)], });
+    this.addRoute({ path: '/:filmId', method: HttpMethodEnum.Post, handler: this.create, middlewares: [new AuthenticateMiddleware(this.config.get('JWT_SECRET'), this.userService), new MongoIDValidateMiddleware('filmId'), new DtoValidateMiddleware(CreateCommentDto)], });
   }
 
   async getCommentsByFilmId(req: Request, res: Response) {
@@ -50,13 +54,13 @@ export default class CommentController extends Controller {
   }
 
   async create(req: Request, res: Response) {
-    const userId = this.creatorUserId;
+    const creatorUserId = (req as unknown as { user: JwtPayloadDto }).user.id;
 
     const filmId = req.params.filmId;
     const body = req.body as CreateCommentDto;
 
     try {
-      const result = await this.commentService.create(body, userId, filmId);
+      const result = await this.commentService.create(body, creatorUserId, filmId);
       await this.filmService.incCommentCount(filmId);
       this.created(res, fillTransformObject(CommentRdo, result));
     } catch (err) {

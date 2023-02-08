@@ -1,5 +1,29 @@
 import { ClassConstructor, plainToInstance } from 'class-transformer';
 import crypto from 'crypto';
+import * as jose from 'jose';
+import { GenreType } from '../type/genre.type';
+
+export const createFilmData = (row: string) => {
+  const tokens = row.replace('\n', '').split('\t');
+  const [title, description, postDate, genres, releaseYear, rating, previewVideoLink, videoLink, actors, director, duration, posterLink, backgroundImageLink, backgroundColor, creatorUser] = tokens;
+
+  return {
+    title,
+    description,
+    postDate: new Date() ?? postDate,
+    genres: genres.split(',') as GenreType[],
+    releaseYear: +releaseYear,
+    rating: +rating,
+    previewVideoLink,
+    videoLink,
+    actors: actors.split(','),
+    director,
+    duration: +duration,
+    posterLink,backgroundImageLink,
+    backgroundColor,
+    creatorUser,
+  };
+};
 
 export const generateRandomValue = (min: number, max: number) => Math.round((Math.random() * (max - min)) + min);
 
@@ -33,3 +57,19 @@ export const fillTransformObject = <T, V>(classConstructor: ClassConstructor<T>,
 export const createErrorObject = (message: string) => ({
   error: message,
 });
+
+export const createJWT = async (algotithm: string, lifeTime: string, jwtSecret: string, payload: object): Promise<string> => new jose.SignJWT({...payload})
+  .setProtectedHeader({alg: algotithm})
+  .setIssuedAt()
+  .setExpirationTime(lifeTime)
+  .sign(crypto.createSecretKey(jwtSecret, 'utf8'));
+
+export const verifyJWT = async (token: string, jwtSecret: string) => {
+  try {
+    await jose.jwtVerify(token, crypto.createSecretKey(jwtSecret, 'utf8'));
+
+    return true;
+  } catch (err) {
+    return false;
+  }
+};

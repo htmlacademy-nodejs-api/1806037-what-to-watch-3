@@ -13,6 +13,7 @@ export const ComponentSymbolEnum = {
   CommentController: Symbol.for('CommentController'),
 
   UserModel: Symbol.for('UserModel'),
+  LogoutUserModel: Symbol.for('LogoutUserModel'),
   FilmModel: Symbol.for('FilmModel'),
   GenreModel: Symbol.for('GenreModel'),
   CommentModel: Symbol.for('CommentModel'),
