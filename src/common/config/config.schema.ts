@@ -11,6 +11,7 @@ export type ConfigSchemaType = {
   DB_NAME: string,
   DB_USER: string,
   DB_PASSWORD: string,
+  UPLOAD_DIRECTORY: string,
 };
 
 export const configSchema = convict<ConfigSchemaType>({
@@ -55,5 +56,11 @@ export const configSchema = convict<ConfigSchemaType>({
     env: 'DB_PASSWORD',
     format: String,
     doc: 'Username to connect to the database (MongoDB)',
+  },
+  UPLOAD_DIRECTORY: {
+    default: '/upload',
+    env: 'UPLOAD_DIRECTORY',
+    format: String,
+    doc: 'Directory for upload files',
   },
 });

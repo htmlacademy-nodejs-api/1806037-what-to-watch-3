@@ -7,7 +7,7 @@ export class FilmInfoRdo {
 
   @Expose()
   @Transform(({ obj }) => obj.creatorUser._id.toString())
-    creatorUserId!: string;
+    creatorUser!: string;
 
   @Expose()
     title!: string;

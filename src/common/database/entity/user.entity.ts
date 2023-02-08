@@ -46,10 +46,11 @@ export class UserEntity implements UserInterface {
     favoriteFilms!: Types.ObjectId[];
 
   constructor (dto: CreateUserDto) {
-    const { email, username } = dto;
+    const { email, username, avatar } = dto;
 
     this.email = email;
     this.username = username;
+    this.avatar = avatar;
 
     return this;
   }
