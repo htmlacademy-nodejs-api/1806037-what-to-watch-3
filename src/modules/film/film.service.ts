@@ -165,16 +165,21 @@ export default class FilmService implements FilmServiceInterface {
     await this.filmModel.findByIdAndDelete(id).exec();
   }
 
-  async incCommentCount(id: string): Promise<void> {
+  async incCommentCount(id: string, userRating: number): Promise<void> {
     const existFilm = await this.findById(id);
 
     if (!existFilm) {
       throw new Error(`The film with id: ${id} does not exist.`);
     }
 
+    const newRating = ((existFilm.rating * existFilm.commentCount) + userRating) / (existFilm.commentCount + 1);
+
     await this.filmModel.findByIdAndUpdate(id, {
       $inc: {
         commentCount: 1,
+      },
+      $set: {
+        rating: newRating,
       },
     }).exec();
   }

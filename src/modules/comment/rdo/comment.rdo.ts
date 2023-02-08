@@ -9,6 +9,9 @@ export class CommentRdo {
     comment!: string;
 
   @Expose()
+    rating!: number;
+
+  @Expose()
     createdAt!: Date;
 
 }

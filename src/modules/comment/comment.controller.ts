@@ -61,7 +61,7 @@ export default class CommentController extends Controller {
 
     try {
       const result = await this.commentService.create(body, creatorUserId, filmId);
-      await this.filmService.incCommentCount(filmId);
+      await this.filmService.incCommentCount(filmId, result.rating);
       this.created(res, fillTransformObject(CommentRdo, result));
     } catch (err) {
       throw new HttpError(
