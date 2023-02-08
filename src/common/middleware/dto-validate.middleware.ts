@@ -34,6 +34,7 @@ export class DtoValidateMiddleware implements MiddlewareInterface {
       );
     }
 
+
     req.body = transformBody;
 
     return next();
