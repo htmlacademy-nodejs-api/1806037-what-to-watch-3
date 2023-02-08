@@ -1,4 +1,4 @@
-import { Expose } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
 import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateUserDto {
@@ -18,5 +18,8 @@ export class CreateUserDto {
   @MaxLength(15)
     username!: string;
 
-  avatar?: string;
+  @Expose()
+  @Transform(({ obj }) => obj.avatar || '')
+  @IsString()
+    avatar?: string;
 }

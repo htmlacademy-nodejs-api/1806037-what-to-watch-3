@@ -7,7 +7,7 @@ export class FilmQuery {
   @Expose()
   @Transform(({ obj }) => {
     const transformValue = +obj.limit;
-    if (transformValue && Number.isNaN(transformValue)) {
+    if (obj.limit && Number.isNaN(transformValue)) {
       throw new HttpError(
         StatusCodes.BAD_REQUEST,
         'Limit query is not number.',
@@ -15,14 +15,14 @@ export class FilmQuery {
       );
     }
 
-    return (transformValue < ZERO_VALUE || !transformValue) ? DEFAULT_FILM_LIMIT : transformValue;
+    return (transformValue < ZERO_VALUE || !obj.limit) ? DEFAULT_FILM_LIMIT : transformValue;
   })
     limit!: number;
 
   @Expose()
   @Transform(({ obj }) => {
     const transformValue = +obj.page;
-    if (transformValue && Number.isNaN(transformValue)) {
+    if (obj.page && Number.isNaN(transformValue)) {
       throw new HttpError(
         StatusCodes.BAD_REQUEST,
         'Page query is not number.',
@@ -30,7 +30,7 @@ export class FilmQuery {
       );
     }
 
-    return (transformValue < ONE_VALUE || !transformValue) ? ONE_VALUE : transformValue;
+    return (transformValue < ONE_VALUE || !obj.page) ? ONE_VALUE : transformValue;
   })
     page!: number;
 

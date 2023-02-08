@@ -1,14 +1,15 @@
-import { validate } from 'class-validator';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { inject, injectable } from 'inversify';
-import { Types } from 'mongoose';
 import { ComponentSymbolEnum } from '../../assets/enum/component.symbol.enum.js';
 import { HttpMethodEnum } from '../../assets/enum/http-method.enum.js';
 import { fillTransformObject } from '../../assets/helper/helpers.js';
 import { Controller } from '../../common/controller/controller.abstract.js';
 import HttpError from '../../common/exception-filter/http-error.js';
 import { LoggerInterface } from '../../common/logger/logger.interface.js';
+import { RequestQueryValidateMiddleware } from '../../common/middleware/film-query-validate.middleware.js';
+import { MongoIDValidateMiddleware } from '../../common/middleware/mongoid-validate.middleware.js';
+import { DtoValidateMiddleware } from '../../common/middleware/dto-validate.middleware.js';
 import FilmService from '../film/film.service.js';
 import CommentService from './comment.service.js';
 import { CreateCommentDto } from './dto/create-comment.dto.js';
@@ -28,21 +29,13 @@ export default class CommentController extends Controller {
 
     this.logger.info(`Register routes for ${CommentController.name}`);
 
-    this.addRoute({ path: '/:filmId', method: HttpMethodEnum.Get, handler: this.getCommentsByFilmId });
-    this.addRoute({ path: '/:filmId', method: HttpMethodEnum.Post, handler: this.create });
+    this.addRoute({ path: '/:filmId', method: HttpMethodEnum.Get, handler: this.getCommentsByFilmId, middlewares: [new MongoIDValidateMiddleware('filmId'), new RequestQueryValidateMiddleware(CommentQuery)], });
+    this.addRoute({ path: '/:filmId', method: HttpMethodEnum.Post, handler: this.create, middlewares: [new MongoIDValidateMiddleware('filmId'), new DtoValidateMiddleware(CreateCommentDto)], });
   }
 
   async getCommentsByFilmId(req: Request, res: Response) {
-    const query = fillTransformObject(CommentQuery, req.query);
     const filmId = req.params.filmId;
-
-    if (!Types.ObjectId.isValid(filmId)) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        `FilmID: ${filmId} is invalid MongoID`,
-        CommentController.name
-      );
-    }
+    const query = req.query as unknown as CommentQuery;
 
     try {
       const result = await this.commentService.findByFilmId(filmId, query);
@@ -58,29 +51,12 @@ export default class CommentController extends Controller {
 
   async create(req: Request, res: Response) {
     const userId = this.creatorUserId;
+
     const filmId = req.params.filmId;
-
-    if (!Types.ObjectId.isValid(filmId)) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        `FilmID: ${filmId} is invalid MongoID`,
-        CommentController.name
-      );
-    }
-
-    const transformValue = fillTransformObject(CreateCommentDto, req.body);
-    const errors = await validate(transformValue);
-
-    if (errors.length > 0) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        errors.toString(),
-        CommentController.name
-      );
-    }
+    const body = req.body as CreateCommentDto;
 
     try {
-      const result = await this.commentService.create(transformValue, userId, filmId);
+      const result = await this.commentService.create(body, userId, filmId);
       await this.filmService.incCommentCount(filmId);
       this.created(res, fillTransformObject(CommentRdo, result));
     } catch (err) {

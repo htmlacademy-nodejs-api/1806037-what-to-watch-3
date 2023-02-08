@@ -33,6 +33,7 @@ export default class Application {
 
   public registerMiddlewares() {
     this.expressApp.use(express.json());
+    this.expressApp.use(`/${this.config.get('UPLOAD_DIRECTORY')}`, express.static(this.config.get('UPLOAD_DIRECTORY')));
   }
 
   public registerExceptionFilters() {

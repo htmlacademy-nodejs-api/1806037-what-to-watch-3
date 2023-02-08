@@ -1,4 +1,3 @@
-import { validate } from 'class-validator';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { inject, injectable } from 'inversify';
@@ -9,6 +8,9 @@ import { fillTransformObject } from '../../assets/helper/helpers.js';
 import { Controller } from '../../common/controller/controller.abstract.js';
 import HttpError from '../../common/exception-filter/http-error.js';
 import { LoggerInterface } from '../../common/logger/logger.interface.js';
+import { RequestQueryValidateMiddleware } from '../../common/middleware/film-query-validate.middleware.js';
+import { MongoIDValidateMiddleware } from '../../common/middleware/mongoid-validate.middleware.js';
+import { DtoValidateMiddleware } from '../../common/middleware/dto-validate.middleware.js';
 import UserService from '../user/user.service.js';
 import { CreateFilmDto } from './dto/create-film.dto.js';
 import { UpdateFilmDto } from './dto/update-film.dto.js';
@@ -32,18 +34,18 @@ export default class FilmController extends Controller {
 
     this.logger.info(`Register routes for ${FilmController.name}`);
 
-    this.addRoute({ path: '/', method: HttpMethodEnum.Get, handler: this.index });
-    this.addRoute({ path: '/', method: HttpMethodEnum.Post, handler: this.create });
-    this.addRoute({ path: '/film/:filmId', method: HttpMethodEnum.Put, handler: this.update });
-    this.addRoute({ path: '/film/:filmId', method: HttpMethodEnum.Get, handler: this.findById });
+    this.addRoute({ path: '/', method: HttpMethodEnum.Get, handler: this.index, middlewares: [new RequestQueryValidateMiddleware(FilmQuery),], });
+    this.addRoute({ path: '/', method: HttpMethodEnum.Post, handler: this.create, middlewares: [new DtoValidateMiddleware(CreateFilmDto),], });
+    this.addRoute({ path: '/film/:filmId', method: HttpMethodEnum.Put, handler: this.update, middlewares: [new MongoIDValidateMiddleware('filmId'), new DtoValidateMiddleware(UpdateFilmDto),], });
+    this.addRoute({ path: '/film/:filmId', method: HttpMethodEnum.Get, handler: this.findById, middlewares: [new MongoIDValidateMiddleware('filmId'),], });
     this.addRoute({ path: '/promo', method: HttpMethodEnum.Get, handler: this.getPromoFilm });
-    this.addRoute({ path: '/favorite', method: HttpMethodEnum.Get, handler: this.myFavoriteFilms });
-    this.addRoute({ path: '/addfavorite/:filmId', method: HttpMethodEnum.Post, handler: this.addFavoriteFilm });
-    this.addRoute({ path: '/removefavorite/:filmId', method: HttpMethodEnum.Post, handler: this.removeFavoriteFilm });
+    this.addRoute({ path: '/favorite', method: HttpMethodEnum.Get, handler: this.myFavoriteFilms, middlewares: [new RequestQueryValidateMiddleware(FilmQuery),], });
+    this.addRoute({ path: '/addfavorite/:filmId', method: HttpMethodEnum.Post, handler: this.addFavoriteFilm, middlewares: [new MongoIDValidateMiddleware('filmId'),], });
+    this.addRoute({ path: '/removefavorite/:filmId', method: HttpMethodEnum.Post, handler: this.removeFavoriteFilm, middlewares: [new MongoIDValidateMiddleware('filmId'),], });
   }
 
   public async index(req: Request, res: Response) {
-    const query = fillTransformObject(FilmQuery, req.query);
+    const query = req.query as unknown as FilmQuery;
 
     let result;
 
@@ -65,19 +67,10 @@ export default class FilmController extends Controller {
   }
 
   public async create(req: Request, res: Response) {
-    const transformBody = fillTransformObject(CreateFilmDto, req.body);
-    const errors = await validate(transformBody);
-
-    if (errors.length > 0) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        errors.toString(),
-        FilmController.name
-      );
-    }
+    const body = req.body as CreateFilmDto;
 
     try {
-      const result = await this.filmService.create(transformBody, this.creatorUserId);
+      const result = await this.filmService.create(body, this.creatorUserId);
       this.created(res, fillTransformObject(FilmFullInfoRdo, result));
     } catch (err) {
       throw new HttpError(
@@ -90,27 +83,11 @@ export default class FilmController extends Controller {
 
   public async update(req: Request, res: Response) {
     const filmId = req.params.filmId;
-    if (!Types.ObjectId.isValid(filmId)) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        `${filmId} is not MongoID`,
-        FilmController.name
-      );
-    }
 
-    const transformBody = fillTransformObject(UpdateFilmDto, req.body);
-    const errors = await validate(transformBody);
-
-    if (errors.length > 0) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        errors.toString(),
-        FilmController.name
-      );
-    }
+    const body = req.body as UpdateFilmDto;
 
     try {
-      const result = await this.filmService.updateById(filmId, transformBody);
+      const result = await this.filmService.updateById(filmId, body);
       this.ok(res, fillTransformObject(FilmFullInfoRdo, result));
     } catch (err) {
       throw new HttpError(
@@ -123,13 +100,6 @@ export default class FilmController extends Controller {
 
   public async findById(req: Request, res: Response) {
     const filmId = req.params.filmId;
-    if (!Types.ObjectId.isValid(filmId)) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        `${filmId} is not MongoID`,
-        FilmController.name
-      );
-    }
 
     try {
       const result = await this.filmService.findById(filmId);
@@ -144,16 +114,17 @@ export default class FilmController extends Controller {
   }
 
   public async getPromoFilm(_req: Request, res: Response) {
-    if (!Types.ObjectId.isValid(this.promoFilmId)) {
+    const promoFilmId = this.promoFilmId;
+    if (!Types.ObjectId.isValid(promoFilmId)) {
       throw new HttpError(
         StatusCodes.BAD_REQUEST,
-        `${this.promoFilmId} is not MongoID`,
+        `${promoFilmId} is not MongoID`,
         FilmController.name
       );
     }
 
     try {
-      const result = await this.filmService.findById(this.promoFilmId);
+      const result = await this.filmService.findById(promoFilmId);
       this.ok(res, fillTransformObject(FilmFullInfoRdo, result));
     } catch (err) {
       throw new HttpError(
@@ -165,7 +136,8 @@ export default class FilmController extends Controller {
   }
 
   public async myFavoriteFilms(req: Request, res: Response) {
-    const query = fillTransformObject(FilmQuery, req.query);
+    const query = req.query as unknown as FilmQuery;
+
     const userId = this.creatorUserId;
     const favoriteFilms = await this.userService.getFavoriteFilmsList(userId);
 
@@ -192,13 +164,6 @@ export default class FilmController extends Controller {
   public async addFavoriteFilm(req: Request, res: Response) {
     const userId = this.creatorUserId;
     const filmId = req.params.filmId;
-    if (!Types.ObjectId.isValid(filmId)) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        `${filmId} is not MongoID`,
-        FilmController.name
-      );
-    }
 
     try {
       await this.userService.addFavoriteFilm(userId, filmId);
@@ -215,13 +180,6 @@ export default class FilmController extends Controller {
   public async removeFavoriteFilm(req: Request, res: Response) {
     const userId = this.creatorUserId;
     const filmId = req.params.filmId;
-    if (!Types.ObjectId.isValid(filmId)) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        `${filmId} is not MongoID`,
-        FilmController.name
-      );
-    }
 
     try {
       await this.userService.removeFavoriteFilm(userId, filmId);

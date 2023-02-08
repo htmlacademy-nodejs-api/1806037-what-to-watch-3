@@ -11,4 +11,7 @@ export class UserRdo {
   @Expose()
     username!: string;
 
+  @Expose()
+    avatar!: string;
+
 }

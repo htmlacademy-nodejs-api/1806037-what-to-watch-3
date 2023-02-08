@@ -1,4 +1,3 @@
-import { validate } from 'class-validator';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { inject, injectable } from 'inversify';
@@ -8,6 +7,8 @@ import { fillTransformObject } from '../../assets/helper/helpers.js';
 import { Controller } from '../../common/controller/controller.abstract.js';
 import HttpError from '../../common/exception-filter/http-error.js';
 import { LoggerInterface } from '../../common/logger/logger.interface.js';
+import { DtoValidateMiddleware } from '../../common/middleware/dto-validate.middleware.js';
+import { UploadFileMiddleware } from '../../common/middleware/upload-file.middleware.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { LoginUserDto } from './dto/login-user.dto.js';
 import { UserRdo } from './rdo/user.rdo.js';
@@ -23,26 +24,17 @@ export default class UserController extends Controller {
 
     this.logger.info(`Register routes for ${UserController.name}`);
 
-    this.addRoute({ path: '/register', method: HttpMethodEnum.Post, handler: this.register });
-    this.addRoute({ path: '/login', method: HttpMethodEnum.Post, handler: this.login });
+    this.addRoute({ path: '/register', method: HttpMethodEnum.Post, handler: this.register, middlewares: [new UploadFileMiddleware('./upload', 'avatar'), new DtoValidateMiddleware(CreateUserDto)], });
+    this.addRoute({ path: '/login', method: HttpMethodEnum.Post, handler: this.login, middlewares: [new DtoValidateMiddleware(LoginUserDto)], });
     this.addRoute({ path: '/logout', method: HttpMethodEnum.Post, handler: this.logout });
     this.addRoute({ path: '/check', method: HttpMethodEnum.Post, handler: this.check });
   }
 
   public async register(req: Request, res: Response) {
-    const transformBody = fillTransformObject(CreateUserDto, req.body);
-    const errors = await validate(transformBody);
-
-    if (errors.length > 0) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        errors.toString(),
-        UserController.name
-      );
-    }
+    const body = req.body as CreateUserDto;
 
     try {
-      const result = await this.userService.create(transformBody);
+      const result = await this.userService.create(body);
       this.created(res, fillTransformObject(UserRdo, result));
     } catch (err) {
       throw new HttpError(
@@ -54,19 +46,10 @@ export default class UserController extends Controller {
   }
 
   public async login(req: Request, res: Response) {
-    const transformBody = fillTransformObject(LoginUserDto, req.body);
-    const errors = await validate(transformBody);
-
-    if (errors.length > 0) {
-      throw new HttpError(
-        StatusCodes.BAD_REQUEST,
-        errors.toString(),
-        UserController.name
-      );
-    }
+    const body = req.body as LoginUserDto;
 
     try {
-      const result = await this.userService.login(transformBody);
+      const result = await this.userService.login(body);
       console.log(result);
       this.send(res, StatusCodes.NOT_IMPLEMENTED,'NO_IMPLEMENTED');
     } catch (err) {
