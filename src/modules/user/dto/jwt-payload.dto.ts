@@ -6,4 +6,7 @@ export class JwtPayloadDto {
 
   @Expose()
     email!: string;
+
+  @Expose()
+    exp!: number;
 }

@@ -6,4 +6,7 @@ export class LogoutUserDto {
 
   @Expose()
     email!: string;
+
+  @Expose()
+    accessTokenExp!: number;
 }

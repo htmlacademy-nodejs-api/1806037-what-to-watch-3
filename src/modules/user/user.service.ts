@@ -5,7 +5,7 @@ import { inject, injectable } from 'inversify';
 import { Types } from 'mongoose';
 import { ConstantValue } from '../../assets/constant/constants.js';
 import { ComponentSymbolEnum } from '../../assets/enum/component.symbol.enum.js';
-import { fillTransformObject, verifyJWT } from '../../assets/helper/helpers.js';
+import { fillTransformObject } from '../../assets/helper/helpers.js';
 import { ConfigInterface } from '../../common/config/config.interface.js';
 import { LogoutUserEntity } from '../../common/database/entity/logout-user.entity.js';
 import { UserEntity } from '../../common/database/entity/user.entity.js';
@@ -30,50 +30,12 @@ export default class UserService implements UserServiceInterface {
 
   async bypassDatabase() {
     setInterval(async () => {
-      let page = 1;
-
-      const result = await this.logoutUserModel.find({}, {}, {
-        limit: ConstantValue.LIMIT_BYPASS_LOGOUT_USER_COUNT,
-        skip: ConstantValue.LIMIT_BYPASS_LOGOUT_USER_COUNT * (page - 1),
+      const result = await this.logoutUserModel.findOne({});
+      const valueLength = String(result?.accessTokenExp).length;
+      const correctDateNow = +(Date.now()).toString().substring(0, valueLength);
+      await this.logoutUserModel.deleteMany({
+        accessTokenExp: { $lte: correctDateNow, },
       });
-
-      const recursionFn = async (array: DocumentType<LogoutUserEntity>[]) => {
-        for await (const item of array) {
-          if (await verifyJWT(item.accessToken, this.config.get('JWT_SECRET'))) {
-            continue;
-          }
-
-          await this.logoutUserModel.deleteOne({
-            accessToken: item.accessToken,
-          });
-        }
-
-        page++;
-
-        const nextResult = await this.logoutUserModel.find({}, {}, {
-          limit: ConstantValue.LIMIT_BYPASS_LOGOUT_USER_COUNT,
-          skip: ConstantValue.LIMIT_BYPASS_LOGOUT_USER_COUNT * (page - 1),
-        });
-
-        if (nextResult.length < ConstantValue.LIMIT_BYPASS_LOGOUT_USER_COUNT) {
-          for await (const item of nextResult) {
-            if (await verifyJWT(item.accessToken, this.config.get('JWT_SECRET'))) {
-              continue;
-            }
-
-            await this.logoutUserModel.deleteOne({
-              accessToken: item.accessToken,
-            });
-          }
-
-          return;
-        }
-
-        recursionFn(nextResult);
-      };
-
-      recursionFn(result);
-
     }, ConstantValue.BYPASS_DATABASE_TIME);
   }
 

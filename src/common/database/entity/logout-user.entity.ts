@@ -20,16 +20,20 @@ export class LogoutUserEntity {
   @prop({
     required: true,
   })
+  public accessTokenExp!: number;
+
+  @prop({
+    required: true,
+  })
   public email!: string;
 
 
   constructor (dto: LogoutUserDto) {
-    const { accessToken, email } = dto;
+    const { accessToken, email, accessTokenExp } = dto;
 
     this.accessToken = accessToken;
     this.email = email;
-
-    return this;
+    this.accessTokenExp = accessTokenExp;
   }
 }
 

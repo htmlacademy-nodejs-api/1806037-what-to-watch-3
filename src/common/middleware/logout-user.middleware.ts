@@ -37,8 +37,10 @@ export class LogoutUserMiddleware implements MiddlewareInterface {
 
     try {
       const payload = (await jose.jwtVerify(accessToken, crypto.createSecretKey(this.jwtSecret, 'utf8'))).payload as unknown as JwtPayloadDto;
+      console.log(payload);
       req.user = {
         accessToken: accessToken,
+        accessTokenExp: payload.exp,
         email: payload.email,
       };
 

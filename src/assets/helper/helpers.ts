@@ -63,13 +63,3 @@ export const createJWT = async (algotithm: string, lifeTime: string, jwtSecret: 
   .setIssuedAt()
   .setExpirationTime(lifeTime)
   .sign(crypto.createSecretKey(jwtSecret, 'utf8'));
-
-export const verifyJWT = async (token: string, jwtSecret: string) => {
-  try {
-    await jose.jwtVerify(token, crypto.createSecretKey(jwtSecret, 'utf8'));
-
-    return true;
-  } catch (err) {
-    return false;
-  }
-};

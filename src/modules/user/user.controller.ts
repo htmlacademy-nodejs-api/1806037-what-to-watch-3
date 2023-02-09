@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { inject, injectable } from 'inversify';
-import { ConstantValue, LifeTimeJwtTokenEnum } from '../../assets/constant/constants.js';
+import { ConstantValue } from '../../assets/constant/constants.js';
 import { ComponentSymbolEnum } from '../../assets/enum/component.symbol.enum.js';
 import { HttpMethodEnum } from '../../assets/enum/http-method.enum.js';
 import { createJWT, fillTransformObject } from '../../assets/helper/helpers.js';
@@ -57,12 +57,15 @@ export default class UserController extends Controller {
 
     try {
       const user = fillTransformObject(UserRdo, await this.userService.login(body));
+
       const accessToken = await createJWT(
         ConstantValue.JWT_ALGORITHM,
-        LifeTimeJwtTokenEnum.AccessTokenLifeTime,
+        // LifeTimeJwtTokenEnum.AccessTokenLifeTime,
+        '1m',
         this.config.get('JWT_SECRET'),
         fillTransformObject(JwtPayloadDto, user)
       );
+
       this.ok(res, { accessToken: accessToken });
     } catch (err) {
       throw new HttpError(
