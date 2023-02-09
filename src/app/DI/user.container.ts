@@ -6,10 +6,12 @@ import { UserServiceInterface } from '../../modules/user/user-service.interface.
 import UserService from '../../modules/user/user.service.js';
 import { ControllerInterface } from '../../assets/interface/controller.interface.js';
 import UserController from '../../modules/user/user.controller.js';
+import { LogoutUserEntity, LogoutUserModel } from '../../common/database/entity/logout-user.entity.js';
 
 const userDIContainer = new Container();
 
 userDIContainer.bind<ModelType<UserEntity>>(ComponentSymbolEnum.UserModel).toConstantValue(UserModel);
+userDIContainer.bind<ModelType<LogoutUserEntity>>(ComponentSymbolEnum.LogoutUserModel).toConstantValue(LogoutUserModel);
 userDIContainer.bind<UserServiceInterface>(ComponentSymbolEnum.UserServiceInterface).to(UserService).inSingletonScope();
 userDIContainer.bind<ControllerInterface>(ComponentSymbolEnum.UserController).to(UserController).inSingletonScope();
 

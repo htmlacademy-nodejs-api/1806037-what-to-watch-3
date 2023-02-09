@@ -1,7 +1,7 @@
 import { DocumentType, ModelType } from '@typegoose/typegoose/lib/types.js';
 import { inject, injectable } from 'inversify';
 import { Types } from 'mongoose';
-import { DEFAULT_FILM_LIMIT, ONE_VALUE, ZERO_VALUE } from '../../assets/constant/constants.js';
+import { ConstantValue } from '../../assets/constant/constants.js';
 import { ComponentSymbolEnum } from '../../assets/enum/component.symbol.enum.js';
 import { FilmEntity } from '../../common/database/entity/film.entity.js';
 import { GenreEntity } from '../../common/database/entity/genre.entity.js';
@@ -35,15 +35,15 @@ export default class FilmService implements FilmServiceInterface {
 
   async find(options: FilmQuery): Promise<DocumentType<FilmEntity>[]> {
     const skip = (() => {
-      if (options.limit > DEFAULT_FILM_LIMIT) {
-        return DEFAULT_FILM_LIMIT * (options.page - ONE_VALUE);
+      if (options.limit > ConstantValue.DEFAULT_FILM_LIMIT) {
+        return ConstantValue.DEFAULT_FILM_LIMIT * (options.page - ConstantValue.ONE_VALUE);
       }
 
-      return ZERO_VALUE;
+      return ConstantValue.ZERO_VALUE;
     })();
     const limit = (() => {
-      if (options.limit > DEFAULT_FILM_LIMIT && (DEFAULT_FILM_LIMIT * options.page) < options.limit) {
-        return DEFAULT_FILM_LIMIT * options.page;
+      if (options.limit > ConstantValue.DEFAULT_FILM_LIMIT && (ConstantValue.DEFAULT_FILM_LIMIT * options.page) < options.limit) {
+        return ConstantValue.DEFAULT_FILM_LIMIT * options.page;
       }
 
       return options.limit;
@@ -62,15 +62,15 @@ export default class FilmService implements FilmServiceInterface {
 
   async findByGenre(genres: string[], options: FilmQuery): Promise<DocumentType<FilmEntity>[]> {
     const skip = (() => {
-      if (options.limit > DEFAULT_FILM_LIMIT) {
-        return DEFAULT_FILM_LIMIT * (options.page - ONE_VALUE);
+      if (options.limit > ConstantValue.DEFAULT_FILM_LIMIT) {
+        return ConstantValue.DEFAULT_FILM_LIMIT * (options.page - ConstantValue.ONE_VALUE);
       }
 
-      return ZERO_VALUE;
+      return ConstantValue.ZERO_VALUE;
     })();
     const limit = (() => {
-      if (options.limit > DEFAULT_FILM_LIMIT && (DEFAULT_FILM_LIMIT * options.page) < options.limit) {
-        return DEFAULT_FILM_LIMIT * options.page;
+      if (options.limit > ConstantValue.DEFAULT_FILM_LIMIT && (ConstantValue.DEFAULT_FILM_LIMIT * options.page) < options.limit) {
+        return ConstantValue.DEFAULT_FILM_LIMIT * options.page;
       }
 
       return options.limit;
@@ -105,15 +105,15 @@ export default class FilmService implements FilmServiceInterface {
 
   async findByIds(ids: Types.ObjectId[], options: FilmQuery): Promise<DocumentType<FilmEntity>[]> {
     const skip = (() => {
-      if (options.limit > DEFAULT_FILM_LIMIT) {
-        return DEFAULT_FILM_LIMIT * (options.page - ONE_VALUE);
+      if (options.limit > ConstantValue.DEFAULT_FILM_LIMIT) {
+        return ConstantValue.DEFAULT_FILM_LIMIT * (options.page - ConstantValue.ONE_VALUE);
       }
 
-      return ZERO_VALUE;
+      return ConstantValue.ZERO_VALUE;
     })();
     const limit = (() => {
-      if (options.limit > DEFAULT_FILM_LIMIT && (DEFAULT_FILM_LIMIT * options.page) < options.limit) {
-        return DEFAULT_FILM_LIMIT * options.page;
+      if (options.limit > ConstantValue.DEFAULT_FILM_LIMIT && (ConstantValue.DEFAULT_FILM_LIMIT * options.page) < options.limit) {
+        return ConstantValue.DEFAULT_FILM_LIMIT * options.page;
       }
 
       return options.limit;
@@ -133,7 +133,13 @@ export default class FilmService implements FilmServiceInterface {
       .exec();
   }
 
-  async updateById(id: string, dto: UpdateFilmDto): Promise<DocumentType<FilmEntity> | null> {
+  async updateById(filmId: string, dto: UpdateFilmDto, creatorFilmDto: string): Promise<DocumentType<FilmEntity> | null> {
+    const existFilm = await this.filmModel.findById(filmId);
+
+    if (existFilm?.creatorUser.toString() !== creatorFilmDto) {
+      throw new Error('This user is not the owner of the movie');
+    }
+
     const { genres } = dto;
     const updateData = {
       ...dto,
@@ -145,7 +151,7 @@ export default class FilmService implements FilmServiceInterface {
 
     return await this.filmModel
       .findByIdAndUpdate(
-        id,
+        filmId,
         updateData,
         {
           populate: ['creatorUser', 'genres'],
@@ -159,16 +165,21 @@ export default class FilmService implements FilmServiceInterface {
     await this.filmModel.findByIdAndDelete(id).exec();
   }
 
-  async incCommentCount(id: string): Promise<void> {
+  async incCommentCount(id: string, userRating: number): Promise<void> {
     const existFilm = await this.findById(id);
 
     if (!existFilm) {
       throw new Error(`The film with id: ${id} does not exist.`);
     }
 
+    const newRating = ((existFilm.rating * existFilm.commentCount) + userRating) / (existFilm.commentCount + 1);
+
     await this.filmModel.findByIdAndUpdate(id, {
       $inc: {
         commentCount: 1,
+      },
+      $set: {
+        rating: newRating,
       },
     }).exec();
   }

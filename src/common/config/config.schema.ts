@@ -12,6 +12,8 @@ export type ConfigSchemaType = {
   DB_USER: string,
   DB_PASSWORD: string,
   UPLOAD_DIRECTORY: string,
+  JWT_SECRET: string,
+  PROMO_FILM_ID: string,
 };
 
 export const configSchema = convict<ConfigSchemaType>({
@@ -62,5 +64,17 @@ export const configSchema = convict<ConfigSchemaType>({
     env: 'UPLOAD_DIRECTORY',
     format: String,
     doc: 'Directory for upload files',
+  },
+  JWT_SECRET: {
+    default: null,
+    env: 'JWT_SECRET',
+    format: String,
+    doc: 'Secret for sign JWT',
+  },
+  PROMO_FILM_ID: {
+    default: null,
+    env: 'PROMO_FILM_ID',
+    format: String,
+    doc: 'Promo film MongoID',
   },
 });
