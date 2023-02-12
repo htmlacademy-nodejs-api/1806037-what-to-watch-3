@@ -161,8 +161,14 @@ export default class FilmService implements FilmServiceInterface {
       .exec();
   }
 
-  async deleteById(id: string): Promise<void> {
-    await this.filmModel.findByIdAndDelete(id).exec();
+  async deleteById(filmId: string, userId: string): Promise<void> {
+    const existFilm = await this.filmModel.findById(filmId);
+
+    if (existFilm?.creatorUser !== userId) {
+      throw new Error(`The user with the ID: "${userId}" is not the owner`);
+    }
+
+    await this.filmModel.findByIdAndDelete(filmId).exec();
   }
 
   async incCommentCount(id: string, userRating: number): Promise<void> {

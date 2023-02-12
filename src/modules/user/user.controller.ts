@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { inject, injectable } from 'inversify';
-import { ConstantValue } from '../../assets/constant/constants.js';
+import { ConstantValue, LifeTimeJwtTokenEnum } from '../../assets/constant/constants.js';
 import { ComponentSymbolEnum } from '../../assets/enum/component.symbol.enum.js';
 import { HttpMethodEnum } from '../../assets/enum/http-method.enum.js';
 import { createJWT, fillTransformObject } from '../../assets/helper/helpers.js';
@@ -60,8 +60,7 @@ export default class UserController extends Controller {
 
       const accessToken = await createJWT(
         ConstantValue.JWT_ALGORITHM,
-        // LifeTimeJwtTokenEnum.AccessTokenLifeTime,
-        '1m',
+        LifeTimeJwtTokenEnum.AccessTokenLifeTime,
         this.config.get('JWT_SECRET'),
         fillTransformObject(JwtPayloadDto, user)
       );
@@ -83,7 +82,7 @@ export default class UserController extends Controller {
   }
 
   public async check(_req: Request, res: Response) {
-    this.send(res, StatusCodes.NOT_IMPLEMENTED,'NO_IMPLEMENTED');
+    this.send(res, StatusCodes.OK,'Valid Token');
   }
 
 }
