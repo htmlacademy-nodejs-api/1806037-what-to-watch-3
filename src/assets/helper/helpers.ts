@@ -1,7 +1,10 @@
 import { ClassConstructor, plainToInstance } from 'class-transformer';
+import { ValidationError } from 'class-validator';
 import crypto from 'crypto';
 import * as jose from 'jose';
 import { GenreType } from '../type/genre.type';
+import { ServiceErrorType } from '../type/service-error.type.js';
+import { ValidationErrorField } from '../type/validation-error-field.type.js';
 
 export const createFilmData = (row: string) => {
   const tokens = row.replace('\n', '').split('\t');
@@ -54,8 +57,10 @@ export const createSHA256 = (line: string, salt: string): string => {
 
 export const fillTransformObject = <T, V>(classConstructor: ClassConstructor<T>, plainObject: V | V[]) => plainToInstance(classConstructor, plainObject, { excludeExtraneousValues: true });
 
-export const createErrorObject = (message: string) => ({
-  error: message,
+export const createErrorObject = (serviceError: ServiceErrorType, message: string, details?: ValidationErrorField[]) => ({
+  errorType: serviceError,
+  message,
+  details: details,
 });
 
 export const createJWT = async (algotithm: string, lifeTime: string, jwtSecret: string, payload: object): Promise<string> => new jose.SignJWT({...payload})
@@ -63,3 +68,10 @@ export const createJWT = async (algotithm: string, lifeTime: string, jwtSecret: 
   .setIssuedAt()
   .setExpirationTime(lifeTime)
   .sign(crypto.createSecretKey(jwtSecret, 'utf8'));
+
+export const transformErrors = (errors: ValidationError[]): ValidationErrorField[] =>
+  errors.map(({ property, value, constraints }) => ({
+    property,
+    value,
+    messages: constraints ? Object.values(constraints) : [],
+  }));

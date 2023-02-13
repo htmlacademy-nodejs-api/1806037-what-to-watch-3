@@ -43,6 +43,7 @@ export default class FilmController extends Controller {
     this.addRoute({ path: '/', method: HttpMethodEnum.Post, handler: this.create, middlewares: [new AuthenticateMiddleware(this.config.get('JWT_SECRET'), this.userService), new DtoValidateMiddleware(CreateFilmDto),], });
     this.addRoute({ path: '/film/:filmId', method: HttpMethodEnum.Put, handler: this.update, middlewares: [new AuthenticateMiddleware(this.config.get('JWT_SECRET'), this.userService), new MongoIDValidateMiddleware('filmId'), new DtoValidateMiddleware(UpdateFilmDto),], });
     this.addRoute({ path: '/film/:filmId', method: HttpMethodEnum.Get, handler: this.findById, middlewares: [new MongoIDValidateMiddleware('filmId'),], });
+    this.addRoute({ path: '/film/:filmId', method: HttpMethodEnum.Delete, handler: this.delete, middlewares: [new AuthenticateMiddleware(this.config.get('JWT_SECRET'), this.userService), new MongoIDValidateMiddleware('filmId'),], });
     this.addRoute({ path: '/promo', method: HttpMethodEnum.Get, handler: this.getPromoFilm });
     this.addRoute({ path: '/favorite', method: HttpMethodEnum.Get, handler: this.myFavoriteFilms, middlewares: [new AuthenticateMiddleware(this.config.get('JWT_SECRET'), this.userService), new RequestQueryValidateMiddleware(FilmQuery),], });
     this.addRoute({ path: '/addfavorite/:filmId', method: HttpMethodEnum.Post, handler: this.addFavoriteFilm, middlewares: [new AuthenticateMiddleware(this.config.get('JWT_SECRET'), this.userService), new MongoIDValidateMiddleware('filmId'),], });
@@ -96,6 +97,22 @@ export default class FilmController extends Controller {
     try {
       const result = await this.filmService.updateById(filmId, body, creatorUserId);
       this.ok(res, fillTransformObject(FilmFullInfoRdo, result));
+    } catch (err) {
+      throw new HttpError(
+        StatusCodes.BAD_REQUEST,
+        (err as Error).message,
+        FilmController.name
+      );
+    }
+  }
+
+  public async delete(req: Request, res: Response) {
+    const creatorUserId = (req as unknown as { user: JwtPayloadDto }).user.id;
+    const filmId = req.params.filmId;
+
+    try {
+      await this.filmService.deleteById(filmId, creatorUserId);
+      this.ok(res, 'OK');
     } catch (err) {
       throw new HttpError(
         StatusCodes.BAD_REQUEST,

@@ -1,5 +1,6 @@
 import { inject, injectable } from 'inversify';
 import express, { Express } from 'express';
+import cors from 'cors';
 import { ComponentSymbolEnum } from '../assets/enum/component.symbol.enum.js';
 import { getMongoDBUri } from '../assets/helper/helpers.js';
 import { ConfigInterface } from '../common/config/config.interface.js';
@@ -32,6 +33,7 @@ export default class Application {
   }
 
   public registerMiddlewares() {
+    this.expressApp.use(cors());
     this.expressApp.use(express.json());
     this.expressApp.use(`/${this.config.get('UPLOAD_DIRECTORY')}`, express.static(this.config.get('UPLOAD_DIRECTORY')));
   }

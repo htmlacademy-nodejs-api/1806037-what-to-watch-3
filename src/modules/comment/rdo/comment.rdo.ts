@@ -6,6 +6,10 @@ export class CommentRdo {
     id!: string;
 
   @Expose()
+  @Transform(({ obj }) => obj._id.toString())
+    creatorUser!: string;
+
+  @Expose()
     comment!: string;
 
   @Expose()

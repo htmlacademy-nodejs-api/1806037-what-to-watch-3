@@ -1,11 +1,11 @@
-openapi: '3.1.0'
+openapi: '3.0.1'
+
 info:
   title: REST API сервер для учебного проекта "Что посмотреть".
   description: |-
     * Списoк ресурсов и маршрутов сервера "Что посмотреть".
   version: '1.0'
-servers:
-  - url: https://api.server.test/v1
+
 tags:
   - name: user
     description: Действия с пользователем.
@@ -13,13 +13,14 @@ tags:
     description: Действия с фильмами.
   - name: comment
     description: Действия с комментариями.
+
 paths:
   /films:
     get:
       tags:
         - "film"
       summary: Получение списка фильмов
-      description: Сервис предоставляет возможность получить список фильмов не более чем из 60 штук, если указан параметр {сount}, тогда получаем список с указанными количеством в параметре. Список отсортирован по дате публикации (по убыванию) Ресурс доступен любому пользователю.
+      description: Сервис предоставляет возможность получить список фильмов не более чем из 60 штук, если указан параметр {limit}, тогда получаем список с указанными количеством в параметре. Список отсортирован по дате публикации (по убыванию) Ресурс доступен любому пользователю.
       operationId: getFilms
       responses:
         '200':
@@ -49,7 +50,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Film'
+                $ref: '#/components/schemas/FilmFullInfo'
         '400':
           description: Ошибка тела запроса
           content:
@@ -59,52 +60,35 @@ paths:
         '401':
           description: Необходима авторизация для данного действия
           content: {}
-  /films[?сount={сount}]:
+  /films[?genre={genre}&limit={count}&page={page}]:
     get:
       tags:
         - "film"
-      summary: Получение списка фильмов
-      description: Сервис предоставляет возможность получить список фильмов не более чем из 60 штук, если указан параметр {сount}, тогда получаем список с указанными количеством в параметре. Список отсортирован по дате публикации (по убыванию) Ресурс доступен любому пользователю.
-      operationId: getFilms
-      parameters:
-        - name: сount
-          in: path
-          description: Количество запрашиваемых фильмов
-          required: false
-          schema:
-            type: string
-            example: 30
-      responses:
-        '200':
-          description: Массив из объектов фильмов
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/FilmInfo'
-  /films[?genre={genre}&сount={count}]:
-    get:
-      tags:
-        - "film"
-      summary: Получение списка фильмов определенного жанра
-      description: Сервис предоставляет возможность получить список фильмов не более чем из 60 штук определенного жанра по переданному параметру {genre}, если указан параметр {count}, тогда получаем список с указанными количеством в параметре,  Список отсортирован по дате публикации (по убыванию) Ресурс доступен любому пользователю.
+      summary: Получение списка фильмов c определенным количество, жанрами, а также список фильмов в зависимости пагинационного числа
+      description: Сервис предоставляет возможность получить список фильмов не более чем из 60 штук определенного жанра по переданному параметру {genre}, если указан параметр {limit}, тогда получаем список с указанными количеством в параметре,  Список отсортирован по дате публикации (по убыванию) Ресурс доступен любому пользователю.
       operationId: getFilmsByGenre
       parameters:
         - name: genre
           in: path
           description: Жанр запрашиваемых фильмов
-          required: false
+          required: true
           schema:
             type: string
             example: thriller
-        - name: сount
+        - name: limit
           in: path
           description: Количество запрашиваемых фильмов
-          required: false
+          required: true
           schema:
             type: string
             example: 30
+        - name: page
+          in: path
+          description: Пагинационное число
+          required: true
+          schema:
+            type: string
+            example: 1
       responses:
         '200':
           description: Массив из объектов фильмов
@@ -127,8 +111,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Film'
-  /films[/:{filmId}]:
+                $ref: '#/components/schemas/FilmFullInfo'
+  /films/film[/:{filmId}]:
     get:
       tags:
         - "film"
@@ -144,11 +128,11 @@ paths:
             $ref: '#/components/schemas/FilmId'
       responses:
         '200':
-          description: Объект с промо фильмом
+          description: Объект c фильмом
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Film'
+                $ref: '#/components/schemas/FilmFullInfo'
         "404":
           description: Фильм не найден
           content: {}
@@ -178,7 +162,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Film'
+                $ref: '#/components/schemas/FilmFullInfo'
         '400':
           description: Ошибка тела запроса
           content:
@@ -216,26 +200,45 @@ paths:
           description: Фильм не найден
           content: {}
 
-  /favorite:
+  /favorite[?genre={genre}&limit={count}&page={page}]:
     get:
       tags:
         - "film"
       summary: Получение списка фильмов "К просмотру"
       description: Сервис предоставляет возможность получения списка всех фильмов "К просмотру". Ресурс доступен только авторизованным пользователем.
       operationId: getFavoriteFilms
+      parameters:
+        - name: genre
+          in: path
+          description: Жанр запрашиваемых фильмов
+          required: true
+          schema:
+            type: string
+            example: thriller
+        - name: limit
+          in: path
+          description: Количество запрашиваемых фильмов
+          required: true
+          schema:
+            type: string
+            example: 30
+        - name: page
+          in: path
+          description: Пагинационное число
+          required: true
+          schema:
+            type: string
+            example: 1
       responses:
         '200':
-          description: Массив объектов фильмов
+          description: Массив из объектов фильмов
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/FilmInfo'
-        "401":
-          description: Пользователь не авторизован
-          content: {}
-  /favorite[/:{filmId}]:
+  /addfavorite[/:{filmId}]:
     post:
       tags:
         - "film"
@@ -255,11 +258,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Film'
+                $ref: '#/components/schemas/FilmFullInfo'
         "401":
           description: Пользователь не авторизован
           content: {}
-    delete:
+  /removefavorite[/:{filmId}]:
+    post:
       tags:
         - "film"
       summary: Удаление фильма из списка "К просмотру" с идентификатором {filmId}
@@ -349,7 +353,7 @@ paths:
           description: Фильм не найден
           content: {}
 
-  /register:
+  /auth/register:
     post:
       tags:
         - "user"
@@ -362,7 +366,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUser'
+              $ref: '#/components/schemas/User'
       responses:
         '201':
           description: Объект с данными о созданном пользователе
@@ -380,7 +384,7 @@ paths:
           description: Пользователь с таким email существует
           content: {}
 
-  /login:
+  /auth/login:
     post:
       tags:
         - "user"
@@ -393,7 +397,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Authorization'
+              $ref: '#/components/schemas/LoginUser'
       responses:
         "200":
           description: Статус авторизации
@@ -410,6 +414,7 @@ paths:
         "401":
           description: Неверный логин или пароль
           content: {}
+  /auth/check:
     get:
       tags:
         - "user"
@@ -431,7 +436,7 @@ paths:
           description: Пользователь не авторизован
           content: {}
 
-  /logout:
+  /auth/logout:
     get:
       tags:
         - "user"
@@ -488,59 +493,40 @@ components:
         description:
           type: string
           example: Пол Эджкомб — начальник блока смертников в тюрьме «Холодная гора», каждый из узников которого однажды проходит «зеленую милю» по пути к месту казни.
-        postDate:
-          $ref: "#/components/schemas/Date"
-        genre:
-          $ref: "#/components/schemas/Genre"
+        genres:
+          type: array
+          items:
+            $ref: "#/components/schemas/Genre"
+          example: [ drama, scifi ]
         releaseYear:
-          type: string
+          type: number
           example: 1994
-        rating:
-          $ref: "#/components/schemas/Rating"
-        previewVideo:
+        previewVideoLink:
           type: string
           example: https://{url}/static/films/film/preview.mp4
-        video:
+        videoLink:
           type: string
           example: https://{url}/static/films/film/video.mp4
         actors:
           type: array
           items:
             type: string
-          example: [Том Хэнкс, Дэвид Морс, Бонни Хант]
+          example: [ Том Хэнкс, Дэвид Морс, Бонни Хант ]
         director:
           type: string
           example: Фрэнк Дарабонт
         duration:
           type: number
           example: 120
-        poster:
+        posterLink:
           type: string
           example: https://{url}/static/img/film-poster.jpeg
-        backgroundImage:
+        backgroundImageLink:
           type: string
           example: https://{url}/static/img/film-background.jpeg
         backgroundColor:
           type: string
           example: ffffff
-
-        # USER_ID НАДО ДОРАБОТАТЬ   ???
-
-    Film:
-      allOf:
-        - type: object
-          properties:
-            # id:
-            #   type: string
-            #   example: 507f1f77bcf86cd799439011
-            commentCount:
-              type: integer
-              format: int32
-              example: 5
-            userUrl:
-              type: string
-              example: '#' # ССЫЛКУ ПРИМЕР ДОБАВИТЬ!!!
-        - $ref: "#/components/schemas/CreateFilm"
 
     FilmInfo:
       type: object
@@ -548,22 +534,46 @@ components:
         id:
           type: string
           example: 507f1f77bcf86cd799439011
+        creatorUser:
+          type: string
+          example: 507f1f77bcf86cd799439011
         title:
           type: string
           example: Зеленая миля
-        publicationDate:
+        postDate:
           type: string
           example: 2021-12-12T21:55:28.147Z
-        genre:
-          $ref: "#/components/schemas/Genre"
-        previewVideo:
+        genres:
+          type: array
+          items:
+            $ref: "#/components/schemas/Genre"
+          example: [ drama, scifi ]
+        previewVideoLink:
           type: string
           example: https://{url}/static/films/film/preview.mp4
-        poster:
+        posterLink:
           type: string
           example: https://{url}/static/img/film-poster.jpeg
+        commentCount:
+          type: number
+          example: 10
 
-        # USER_ID НАДО ДОРАБОТАТЬ   ???
+    FilmFullInfo:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              example: 507f1f77bcf86cd799439011
+            creatorUser:
+              type: string
+              example: 507f1f77bcf86cd799439011
+            commentCount:
+              type: integer
+              format: int32
+              example: 5
+        - $ref: "#/components/schemas/CreateFilm"
+
 
     CreateComment:
       type: object
@@ -581,44 +591,58 @@ components:
             id:
               type: string
               example: 507f1f77bcf86cd799439011
-            date:
+            creatorUser:
+              type: string
+              example: 507f1f77bcf86cd799439011
+            createdAt:
               $ref: "#/components/schemas/Date"
-            user:
-              $ref: "#/components/schemas/User"
         - $ref: "#/components/schemas/CreateComment"
 
-    CreateUser:
+    User:
       type: object
       properties:
-        name:
-          type: string
-          example: John Doe
+        id:
+                type: string
+                example: 507f1f77bcf86cd799439011
         email:
           type: string
           example: John.doe@gmail.com
+        username:
+          type: string
+          example: John Doe
         avatar:
           type: string
           example: https://{url}/static/avatar/1.jpg
 
-    User:
-      allOf:
-        - type: object
-          properties:
-            id:
-              type: string
-              example: 2dd9c
-        - $ref: "#/components/schemas/CreateUser"
+    LoggedUser:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example:
+            - $ref: "#/components/schemas/Token"
+        refreshToken:
+          type: string
+          example:
+            - $ref: "#/components/schemas/Token"
 
-    RegisterUser:
-      allOf:
-        - $ref: "#/components/schemas/CreateUser"
-        - type: object
-          properties:
-            password:
-              type: string
-              example: password
+    CreateUser:
+      type: object
+      properties:
+        email:
+          type: string
+          example: John.doe@gmail.com
+        password:
+          type: string
+          example: 111111
+        username:
+          type: string
+          example: John Doe
+        avatar:
+          type: string
+          example: https://{url}/static/avatar/1.jpg
 
-    Authorization:
+    LoginUser:
       type: object
       properties:
         email:
@@ -628,17 +652,9 @@ components:
           type: string
           example: password
 
-    AuthorizationInfo:
-      allOf:
-        - $ref: "#/components/schemas/User"
-        - type: object
-          properties:
-            token:
-              $ref: '#/components/schemas/Token'
-
     Token:
       type: string
-      example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb20=
+      example: d61sa55555555555555555555555555555555d1sa51d6sa51d6as5d1sa1f651sad61g65sd15sa=
 
     FilmId:
       type: string
