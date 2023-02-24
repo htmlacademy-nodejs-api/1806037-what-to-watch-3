@@ -1,5 +1,6 @@
 import { Expose } from 'class-transformer';
 import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
+import { ConstantsValue } from '../../../assets/constant/constants.js';
 
 export class LoginUserDto {
   @Expose()
@@ -8,8 +9,8 @@ export class LoginUserDto {
 
   @Expose()
   @IsString()
-  @MinLength(6)
-  @MaxLength(12)
+  @MinLength(ConstantsValue.USER_PASSWORD_MIN_LENGTH)
+  @MaxLength(ConstantsValue.USER_PASSWORD_MAX_LENGTH)
     password!: string;
 
 }
