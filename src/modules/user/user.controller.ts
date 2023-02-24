@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { inject, injectable } from 'inversify';
-import { ConstantValue, LifeTimeJwtTokenEnum } from '../../assets/constant/constants.js';
+import { ConstantsValue, LifeTimeJwtTokenEnum } from '../../assets/constant/constants.js';
 import { ComponentSymbolEnum } from '../../assets/enum/component.symbol.enum.js';
 import { HttpMethodEnum } from '../../assets/enum/http-method.enum.js';
 import { createJWT, fillTransformObject } from '../../assets/helper/helpers.js';
 import { ConfigInterface } from '../../common/config/config.interface.js';
-import { Controller } from '../../common/controller/controller.abstract.js';
+import { ControllerAbstract } from '../../common/controller/controller.abstract.js';
 import HttpError from '../../common/exception-filter/http-error.js';
 import { LoggerInterface } from '../../common/logger/logger.interface.js';
 import { AuthenticateMiddleware } from '../../common/middleware/authenticate.middleware.js';
@@ -21,7 +21,7 @@ import { UserRdo } from './rdo/user.rdo.js';
 import UserService from './user.service.js';
 
 @injectable()
-export default class UserController extends Controller {
+export default class UserController extends ControllerAbstract {
   constructor (
     @inject(ComponentSymbolEnum.LoggerInterface) readonly logger: LoggerInterface,
     @inject(ComponentSymbolEnum.ConfigInterface) readonly config: ConfigInterface,
@@ -59,7 +59,7 @@ export default class UserController extends Controller {
       const user = fillTransformObject(UserRdo, await this.userService.login(body));
 
       const accessToken = await createJWT(
-        ConstantValue.JWT_ALGORITHM,
+        ConstantsValue.JWT_ALGORITHM,
         LifeTimeJwtTokenEnum.AccessTokenLifeTime,
         this.config.get('JWT_SECRET'),
         fillTransformObject(JwtPayloadDto, user)

@@ -4,10 +4,10 @@ import { inject, injectable } from 'inversify';
 import { ComponentSymbolEnum } from '../../assets/enum/component.symbol.enum.js';
 import { HttpMethodEnum } from '../../assets/enum/http-method.enum.js';
 import { fillTransformObject } from '../../assets/helper/helpers.js';
-import { Controller } from '../../common/controller/controller.abstract.js';
+import { ControllerAbstract } from '../../common/controller/controller.abstract.js';
 import HttpError from '../../common/exception-filter/http-error.js';
 import { LoggerInterface } from '../../common/logger/logger.interface.js';
-import { RequestQueryValidateMiddleware } from '../../common/middleware/film-query-validate.middleware.js';
+import { RequestQueryValidateMiddleware } from '../../common/middleware/request-query-validate.middleware.js';
 import { MongoIDValidateMiddleware } from '../../common/middleware/mongoid-validate.middleware.js';
 import { DtoValidateMiddleware } from '../../common/middleware/dto-validate.middleware.js';
 import FilmService from '../film/film.service.js';
@@ -21,7 +21,7 @@ import { AuthenticateMiddleware } from '../../common/middleware/authenticate.mid
 import { JwtPayloadDto } from '../user/dto/jwt-payload.dto.js';
 
 @injectable()
-export default class CommentController extends Controller {
+export default class CommentController extends ControllerAbstract {
   constructor (
     @inject(ComponentSymbolEnum.LoggerInterface) readonly logger: LoggerInterface,
     @inject(ComponentSymbolEnum.ConfigInterface) readonly config: ConfigInterface,

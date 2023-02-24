@@ -3,7 +3,7 @@ import { ModelType } from '@typegoose/typegoose/lib/types.js';
 import { validate } from 'class-validator';
 import { inject, injectable } from 'inversify';
 import { Types } from 'mongoose';
-import { ConstantValue } from '../../assets/constant/constants.js';
+import { ConstantsValue } from '../../assets/constant/constants.js';
 import { ComponentSymbolEnum } from '../../assets/enum/component.symbol.enum.js';
 import { fillTransformObject } from '../../assets/helper/helpers.js';
 import { ConfigInterface } from '../../common/config/config.interface.js';
@@ -36,7 +36,7 @@ export default class UserService implements UserServiceInterface {
       await this.logoutUserModel.deleteMany({
         accessTokenExp: { $lte: correctDateNow, },
       });
-    }, ConstantValue.BYPASS_DATABASE_TIME);
+    }, ConstantsValue.BYPASS_DATABASE_TIME);
   }
 
 

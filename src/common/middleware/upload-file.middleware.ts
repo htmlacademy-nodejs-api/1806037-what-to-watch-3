@@ -6,7 +6,7 @@ import { nanoid } from 'nanoid';
 import { MiddlewareInterface } from '../../assets/interface/middleware.interface.js';
 import HttpError from '../exception-filter/http-error.js';
 
-const regexFormatAvatarFile = /^.*\.(jpg|png)$/;
+const REGEX_FORMAT_AVATAR_FILE = /^.*\.(jpg|png)$/;
 
 export class UploadFileMiddleware implements MiddlewareInterface {
   constructor (
@@ -18,7 +18,7 @@ export class UploadFileMiddleware implements MiddlewareInterface {
     const storage = diskStorage({
       destination: this.uploadDirectory,
       filename: (_req, file, callback) => {
-        if (!regexFormatAvatarFile.test(file.originalname)) {
+        if (!REGEX_FORMAT_AVATAR_FILE.test(file.originalname)) {
           const error = new HttpError(
             StatusCodes.BAD_REQUEST,
             'The format of the avatar is only \'.jpg` and `.png`',

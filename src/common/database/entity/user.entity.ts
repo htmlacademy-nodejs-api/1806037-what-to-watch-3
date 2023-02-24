@@ -61,10 +61,6 @@ export class UserEntity implements UserInterface {
     return this;
   }
 
-  public getPasswordHash(): string {
-    return this.passwordHash;
-  }
-
   public verifyPassword(loginPassword: string, salt: string) {
     const loginPasswordHash = createSHA256(loginPassword, salt);
 

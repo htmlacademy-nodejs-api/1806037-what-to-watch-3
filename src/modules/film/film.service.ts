@@ -1,7 +1,7 @@
 import { DocumentType, ModelType } from '@typegoose/typegoose/lib/types.js';
 import { inject, injectable } from 'inversify';
 import { Types } from 'mongoose';
-import { ConstantValue } from '../../assets/constant/constants.js';
+import { ConstantsValue } from '../../assets/constant/constants.js';
 import { ComponentSymbolEnum } from '../../assets/enum/component.symbol.enum.js';
 import { FilmEntity } from '../../common/database/entity/film.entity.js';
 import { GenreEntity } from '../../common/database/entity/genre.entity.js';
@@ -35,15 +35,15 @@ export default class FilmService implements FilmServiceInterface {
 
   async find(options: FilmQuery): Promise<DocumentType<FilmEntity>[]> {
     const skip = (() => {
-      if (options.limit > ConstantValue.DEFAULT_FILM_LIMIT) {
-        return ConstantValue.DEFAULT_FILM_LIMIT * (options.page - ConstantValue.ONE_VALUE);
+      if (options.limit > ConstantsValue.DEFAULT_FILM_LIMIT) {
+        return ConstantsValue.DEFAULT_FILM_LIMIT * (options.page - ConstantsValue.ONE_VALUE);
       }
 
-      return ConstantValue.ZERO_VALUE;
+      return ConstantsValue.ZERO_VALUE;
     })();
     const limit = (() => {
-      if (options.limit > ConstantValue.DEFAULT_FILM_LIMIT && (ConstantValue.DEFAULT_FILM_LIMIT * options.page) < options.limit) {
-        return ConstantValue.DEFAULT_FILM_LIMIT * options.page;
+      if (options.limit > ConstantsValue.DEFAULT_FILM_LIMIT && (ConstantsValue.DEFAULT_FILM_LIMIT * options.page) < options.limit) {
+        return ConstantsValue.DEFAULT_FILM_LIMIT * options.page;
       }
 
       return options.limit;
@@ -62,15 +62,15 @@ export default class FilmService implements FilmServiceInterface {
 
   async findByGenre(genres: string[], options: FilmQuery): Promise<DocumentType<FilmEntity>[]> {
     const skip = (() => {
-      if (options.limit > ConstantValue.DEFAULT_FILM_LIMIT) {
-        return ConstantValue.DEFAULT_FILM_LIMIT * (options.page - ConstantValue.ONE_VALUE);
+      if (options.limit > ConstantsValue.DEFAULT_FILM_LIMIT) {
+        return ConstantsValue.DEFAULT_FILM_LIMIT * (options.page - ConstantsValue.ONE_VALUE);
       }
 
-      return ConstantValue.ZERO_VALUE;
+      return ConstantsValue.ZERO_VALUE;
     })();
     const limit = (() => {
-      if (options.limit > ConstantValue.DEFAULT_FILM_LIMIT && (ConstantValue.DEFAULT_FILM_LIMIT * options.page) < options.limit) {
-        return ConstantValue.DEFAULT_FILM_LIMIT * options.page;
+      if (options.limit > ConstantsValue.DEFAULT_FILM_LIMIT && (ConstantsValue.DEFAULT_FILM_LIMIT * options.page) < options.limit) {
+        return ConstantsValue.DEFAULT_FILM_LIMIT * options.page;
       }
 
       return options.limit;
@@ -105,15 +105,15 @@ export default class FilmService implements FilmServiceInterface {
 
   async findByIds(ids: Types.ObjectId[], options: FilmQuery): Promise<DocumentType<FilmEntity>[]> {
     const skip = (() => {
-      if (options.limit > ConstantValue.DEFAULT_FILM_LIMIT) {
-        return ConstantValue.DEFAULT_FILM_LIMIT * (options.page - ConstantValue.ONE_VALUE);
+      if (options.limit > ConstantsValue.DEFAULT_FILM_LIMIT) {
+        return ConstantsValue.DEFAULT_FILM_LIMIT * (options.page - ConstantsValue.ONE_VALUE);
       }
 
-      return ConstantValue.ZERO_VALUE;
+      return ConstantsValue.ZERO_VALUE;
     })();
     const limit = (() => {
-      if (options.limit > ConstantValue.DEFAULT_FILM_LIMIT && (ConstantValue.DEFAULT_FILM_LIMIT * options.page) < options.limit) {
-        return ConstantValue.DEFAULT_FILM_LIMIT * options.page;
+      if (options.limit > ConstantsValue.DEFAULT_FILM_LIMIT && (ConstantsValue.DEFAULT_FILM_LIMIT * options.page) < options.limit) {
+        return ConstantsValue.DEFAULT_FILM_LIMIT * options.page;
       }
 
       return options.limit;

@@ -1,7 +1,7 @@
 import { DocumentType, getModelForClass, modelOptions, prop, Ref } from '@typegoose/typegoose';
 import { Base, TimeStamps } from '@typegoose/typegoose/lib/defaultClasses.js';
 import { Types } from 'mongoose';
-import { ConstantValue } from '../../../assets/constant/constants.js';
+import { ConstantsValue } from '../../../assets/constant/constants.js';
 
 import { FilmInterface } from '../../../assets/interface/film.interface.js';
 import { CreateFilmDto } from '../../../modules/film/dto/create-film.dto.js';
@@ -130,7 +130,7 @@ export class FilmEntity implements FilmInterface {
     this.postDate = new Date();
     this.genres = genresId;
     this.releaseYear = releaseYear;
-    this.rating = ConstantValue.DEFAULT_RATING_FILM;
+    this.rating = ConstantsValue.DEFAULT_RATING_FILM;
     this.previewVideoLink = previewVideoLink;
     this.videoLink = videoLink;
     this.actors = actors;

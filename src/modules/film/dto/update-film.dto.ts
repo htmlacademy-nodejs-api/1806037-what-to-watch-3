@@ -2,6 +2,7 @@ import { Exclude, Expose } from 'class-transformer';
 import { IsString, MinLength, MaxLength, IsNumber, IsArray, IsMongoId } from 'class-validator';
 import { Types } from 'mongoose';
 import { GenreType } from '../../../assets/type/genre.type.js';
+import { ConstantsValue } from '../../../assets/constant/constants.js';
 
 export class UpdateFilmDto {
   @Exclude()
@@ -10,14 +11,14 @@ export class UpdateFilmDto {
 
   @Expose()
   @IsString()
-  @MinLength(2)
-  @MaxLength(100)
+  @MinLength(ConstantsValue.FILM_TITLE_MIN_LENGTH)
+  @MaxLength(ConstantsValue.FILM_TITLE_MAX_LENGTH)
   public title?: string;
 
   @Expose()
   @IsString()
-  @MinLength(20)
-  @MaxLength(1024)
+  @MinLength(ConstantsValue.FILM_DESCRIPTION_MIN_LENGTH)
+  @MaxLength(ConstantsValue.FILM_DESCRIPTION_MAX_LENGTH)
   public description?: string;
 
   @Expose()

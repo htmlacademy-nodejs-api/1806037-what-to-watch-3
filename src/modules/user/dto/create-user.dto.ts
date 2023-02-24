@@ -1,5 +1,6 @@
 import { Expose, Transform } from 'class-transformer';
 import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
+import { ConstantsValue } from '../../../assets/constant/constants.js';
 
 export class CreateUserDto {
   @Expose()
@@ -8,14 +9,14 @@ export class CreateUserDto {
 
   @Expose()
   @IsString()
-  @MinLength(6)
-  @MaxLength(12)
+  @MinLength(ConstantsValue.USER_PASSWORD_MIN_LENGTH)
+  @MaxLength(ConstantsValue.USER_PASSWORD_MAX_LENGTH)
     password!: string;
 
   @Expose()
   @IsString()
-  @MinLength(1)
-  @MaxLength(15)
+  @MinLength(ConstantsValue.USER_USERNAME_MIN_LENGTH)
+  @MaxLength(ConstantsValue.USER_USERNAME_MAX_LENGTH)
     username!: string;
 
   @Expose()
